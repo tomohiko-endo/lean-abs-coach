@@ -24,6 +24,8 @@
     .brand h1{font-size:24px;margin:0;letter-spacing:-.02em}
     .brand p{font-size:13px;color:var(--muted);margin:4px 0 0}
     .pill{background:var(--accent-soft);color:#9a3c0d;padding:8px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+    .header-meta{display:flex;align-items:flex-end;gap:6px;flex-direction:column}
+    .version-badge{font-size:11px;font-weight:800;color:var(--muted);padding:3px 7px;border:1px solid var(--line);border-radius:999px;background:var(--card);white-space:nowrap}
     .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadow)}
     .grid{display:grid;gap:12px}
     .kpis{grid-template-columns:repeat(3,1fr);margin-bottom:12px}
@@ -87,6 +89,16 @@
     .default-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
     .default-fields label{font-size:11px;color:var(--muted);display:grid;gap:4px}
     .health-import{margin-bottom:12px}
+    .quick-health{margin-bottom:12px;border:1px solid rgba(255,111,44,.35);background:linear-gradient(180deg,var(--card),var(--accent-soft))}
+    .quick-health .btn.primary{width:100%;min-height:46px;font-weight:800}
+    .version-card{margin-top:12px}
+    .changelog{display:grid;gap:10px;margin-top:10px}
+    .change-item{border-top:1px solid var(--line);padding-top:10px}
+    .change-item:first-child{border-top:0;padding-top:0}
+    .change-head{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:4px}
+    .change-version{font-weight:800;font-size:13px}
+    .change-current{font-size:10px;padding:3px 6px;border-radius:999px;background:var(--accent-soft);color:#9a3c0d;font-weight:800}
+    .change-text{font-size:12px;line-height:1.6;color:var(--muted)}
     .health-import details{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
     .health-import summary{font-size:13px;font-weight:800;cursor:pointer}
     .health-steps{margin:9px 0 0;padding-left:20px;font-size:12px;line-height:1.65;color:var(--muted)}
@@ -117,7 +129,7 @@
         <h1>Lean Abs Coach</h1>
         <p>腹筋の割れた痩せマッチョをつくる記録アプリ</p>
       </div>
-      <div class="pill">44歳・173cm</div>
+      <div class="header-meta"><div class="pill">44歳・173cm</div><div class="version-badge">v6.0.0</div></div>
     </header>
 
     <section class="grid kpis">
@@ -128,6 +140,17 @@
 
     <section id="view-today" class="view active" aria-labelledby="tab-today">
       <div class="section-title"><div><h2>今日のトレーニング</h2><p>ジムA → 自宅B → ジムCを基本ローテーション</p></div></div>
+      <div class="card quick-health">
+        <div class="split">
+          <div><strong>体組成をまとめて同期</strong><div class="mini">HealthPlanet → Appleヘルスケアから直近7日分</div></div>
+          <span class="status ok">7日分</span>
+        </div>
+        <p class="hint">毎日操作しなくても大丈夫です。ここからショートカットを起動し、体重・体脂肪率をまとめて取り込みます。</p>
+        <div class="actions">
+          <button id="importHealthQuick" class="btn primary" type="button">体組成を取り込む（直近7日）</button>
+          <button id="openBodyView" class="btn soft" type="button">体組成画面を開く</button>
+        </div>
+      </div>
       <div class="plan-selector">
         <button class="plan-btn active" data-plan="A" type="button">ジムA</button>
         <button class="plan-btn" data-plan="B" type="button">自宅B</button>
@@ -152,23 +175,24 @@
           <div><strong>HealthPlanetから取り込み</strong><div class="mini">HealthPlanet → Appleヘルスケア → ショートカット</div></div>
           <span class="status ok">iPhone</span>
         </div>
-        <p class="hint">最新の体重・体脂肪率を取得して、このアプリの同じ日付の体組成データへ自動で反映します。すでに食事・腹囲などを入力済みでも、その項目は残します。</p>
+        <p class="hint">直近7日分の体重・体脂肪率をまとめて取得します。同じ日付のデータがすでにある場合は体重・体脂肪率だけを上書きし、腹囲・食事・メモなどは残します。毎日取り込む必要はありません。</p>
         <div class="actions">
-          <button id="importHealth" class="btn primary" type="button">最新データを取り込む</button>
+          <button id="importHealth" class="btn primary" type="button">直近7日分を取り込む</button>
           <button id="pasteHealth" class="btn soft" type="button">コピー済みデータを取り込む</button>
         </div>
         <div id="healthImportMessage" class="msg" aria-live="polite"></div>
         <details>
-          <summary>初回だけ：ショートカットの作り方</summary>
+          <summary>ショートカット設定（完成版）</summary>
           <ol class="health-steps">
-            <li>iPhoneの「ショートカット」で新規作成し、名前を「Lean Abs Health Import」にします。</li>
-            <li>「ヘルスケアサンプルを検索」で種類＝体重、開始日を新しい順、上限＝1件にし、最新の値と開始日を取得します。</li>
-            <li>同じように種類＝体脂肪率、開始日を新しい順、上限＝1件にし、最新の値を取得します。</li>
-            <li>体重の開始日を「日付をフォーマット」で <code>yyyy-MM-dd</code> にします。</li>
-            <li>最後に「テキスト」で下の形式を作り、そのテキストを「クリップボードにコピー」→「停止して出力」します。</li>
+            <li>体重を「開始日＝過去7日以内」「開始日・古い順」「上限OFF」で検索します。</li>
+            <li>検索結果を繰り返し、最初に「繰り返し項目」を <code>CurrentWeightSample</code> に設定。そこから「値」「開始日」を取得し、開始日を <code>yyyy-MM-dd</code> に書式設定します。</li>
+            <li>繰り返し内の最後に <code>type=weight&amp;value=値&amp;date=日付</code> のテキストを置きます。繰り返し終了後、「繰り返しの結果」を <code>WeightLines</code> に設定します。</li>
+            <li>体脂肪率も同様に <code>CurrentFatSample</code> を使い、<code>type=fat&amp;value=値&amp;date=日付</code> を作成。終了後の結果を <code>FatLines</code> に設定します。</li>
+            <li>「リスト」に <code>WeightLines</code> と <code>FatLines</code> を入れ、そのリストを「改行」で結合します。</li>
+            <li>最後は必ず「結合済みのテキスト」を「クリップボードにコピー」→「停止して出力」に指定します。</li>
           </ol>
-          <div class="health-code">weight=体重の数値&amp;fat=体脂肪率の数値&amp;date=yyyy-MM-dd</div>
-          <p class="hint" style="margin-bottom:0">通常は「最新データを取り込む」だけで戻って自動保存します。iOSの動作でSafari側に戻った場合は、ホーム画面のLean Abs Coachへ戻り「コピー済みデータを取り込む」を押せば同じデータを保存できます。</p>
+          <div class="health-code">type=weight&amp;value=60.7&amp;date=2026-08-24<br>type=fat&amp;value=13.9&amp;date=2026-08-24<br>…</div>
+          <p class="hint" style="margin-bottom:0">同日に複数回測定した場合は、古い順に処理することでその日の最後の測定値を採用します。取り込み済みの日付は体重・体脂肪率だけ上書きし、腹囲・食事・メモは残します。</p>
         </details>
       </div>
       <div class="card">
@@ -247,7 +271,28 @@
         <p class="hint" style="margin-bottom:0">履歴がある場合は前回値が優先されます。前回値の自動入力をOFFにすると、ここで設定した初期値を使います。初期回数を空欄にすると回数は未入力で表示します。</p>
         <div id="defaultsMessage" class="msg" aria-live="polite"></div>
       </div>
-      <div class="card settings-list">
+      <div class="card version-card">
+        <div class="split">
+          <div><strong>アプリ情報</strong><div class="mini">現在のバージョンと更新内容</div></div>
+          <span class="status ok">v6.0.0</span>
+        </div>
+        <p class="hint">画面が古いままの場合は「最新版を確認・再読み込み」を押してください。記録データは消さず、PWAのキャッシュだけを更新します。</p>
+        <div class="actions"><button id="forceUpdate" class="btn primary" type="button">最新版を確認・再読み込み</button></div>
+        <div id="updateMessage" class="msg" aria-live="polite"></div>
+        <details open>
+          <summary>更新履歴</summary>
+          <div class="changelog">
+            <div class="change-item"><div class="change-head"><span class="change-version">v6.0.0</span><span class="change-current">現在</span></div><div class="change-text">「今日」画面にも体組成取り込みボタンを追加。現在バージョン表示、強制更新機能、v1〜v6の更新履歴を追加。7日分ショートカットの作り方を実際に動作確認した WeightLines / FatLines 方式へ修正。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v5.0.0</span></div><div class="change-text">HealthPlanet連携を直近7日分の一括取り込みに対応。同じ日付は体重・体脂肪率のみ上書きし、腹囲・食事・メモを保持。複数行データの解析に対応。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v4.0.0</span></div><div class="change-text">HealthPlanet → Appleヘルスケア → iPhoneショートカット連携を追加。最新の体重・体脂肪率を取り込み、取込元を記録。報告文・CSVにも連携データを反映。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v3.0.0</span></div><div class="change-text">トレーニングの重量・回数を前回値から自動入力する機能を追加。種目ごとの初期重量・初期回数を設定画面で変更可能にし、前回値優先のON/OFFを追加。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v2.0.0</span></div><div class="change-text">PWA完全対応。ホーム画面への追加、Service Worker、オフライン用キャッシュ、iPhoneのセーフエリア対応など、Webアプリとして使うための構成を整備。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v1.0.0</span></div><div class="change-text">初版。ジムA・自宅B・ジムCのトレーニング記録、体組成・食事記録、履歴、増量判定、ChatGPT報告文生成、JSON/CSVバックアップを実装。</div></div>
+          </div>
+        </details>
+      </div>
+
+      <div class="card settings-list" style="margin-top:12px">
         <div class="split"><div><strong>保存方式</strong><div class="mini">この端末のブラウザに保存</div></div><span class="status ok">Local</span></div>
         <div class="actions">
           <button id="exportJson" class="btn" type="button">JSONバックアップ</button>
@@ -275,6 +320,7 @@
 (() => {
   'use strict';
   const STORAGE_KEY = 'leanAbsCoach.v1';
+  const APP_VERSION = '6.0.0';
 
   const plans = {
     A: [
@@ -351,24 +397,16 @@
     return m ? Number(m[0]) : null;
   }
 
-  function parseHealthPayload(text){
-    if(!text) return null;
-    let obj=null;
-    try{ obj=JSON.parse(String(text)); }catch(e){}
-    if(!obj || typeof obj!=='object'){
-      const q=new URLSearchParams(String(text).replace(/^\?/,'').replace(/\n/g,'&'));
-      obj={weight:q.get('weight'),fat:q.get('fat'),date:q.get('date')};
-      if(obj.weight===null && obj.fat===null){
-        const raw=String(text);
-        const w=raw.match(/weight\s*[:=]\s*([^&\n]+)/i);
-        const f=raw.match(/fat\s*[:=]\s*([^&\n]+)/i);
-        const d=raw.match(/date\s*[:=]\s*(\d{4}-\d{2}-\d{2})/i);
-        obj={weight:w&&w[1],fat:f&&f[1],date:d&&d[1]};
-      }
-    }
+  function normalizeHealthRecord(obj, fallbackDate){
+    if(!obj || typeof obj!=='object') return null;
+    const date=/^\d{4}-\d{2}-\d{2}$/.test(String(obj.date||'')) ? String(obj.date) : (fallbackDate||today());
     let weight=cleanNumber(obj.weight);
     let fat=cleanNumber(obj.fat);
-    const date=/^\d{4}-\d{2}-\d{2}$/.test(String(obj.date||'')) ? String(obj.date) : today();
+    if(obj.type && obj.value!==undefined){
+      const type=String(obj.type).toLowerCase();
+      if(type==='weight') weight=cleanNumber(obj.value);
+      if(type==='fat' || type==='bodyfat' || type==='body_fat') fat=cleanNumber(obj.value);
+    }
     if(fat!==null && fat>0 && fat<=1) fat*=100;
     if(weight!==null && (weight<25 || weight>250)) weight=null;
     if(fat!==null && (fat<1 || fat>75)) fat=null;
@@ -376,32 +414,103 @@
     return {date,weight:weight===null?null:Number(weight.toFixed(2)),fat:fat===null?null:Number(fat.toFixed(2))};
   }
 
-  function mergeHealthMeasurement(data){
-    const matches=state.body.map((x,i)=>({x,i})).filter(v=>v.x.date===data.date);
-    let row,index=-1;
-    if(matches.length){
-      index=matches[matches.length-1].i;
-      row=state.body[index];
-    }else{
-      row={id:Date.now(),date:data.date,weight:null,waist:null,fat:null,muscle:null,calories:null,protein:null,fatGram:null,carbs:null,memo:''};
+  function parseHealthLine(line){
+    const raw=String(line||'').trim();
+    if(!raw) return null;
+    let obj=null;
+    try{ obj=JSON.parse(raw); }catch(e){}
+    if(!obj || typeof obj!=='object' || Array.isArray(obj)){
+      const q=new URLSearchParams(raw.replace(/^\?/,'').replace(/\n/g,'&'));
+      obj={
+        type:q.get('type'), value:q.get('value'),
+        weight:q.get('weight'), fat:q.get('fat'), date:q.get('date')
+      };
+      if(obj.weight===null && obj.fat===null && obj.value===null){
+        const w=raw.match(/weight\s*[:=]\s*([^&\n]+)/i);
+        const f=raw.match(/fat\s*[:=]\s*([^&\n]+)/i);
+        const d=raw.match(/date\s*[:=]\s*(\d{4}-\d{2}-\d{2})/i);
+        const t=raw.match(/type\s*[:=]\s*([^&\n]+)/i);
+        const v=raw.match(/value\s*[:=]\s*([^&\n]+)/i);
+        obj={weight:w&&w[1],fat:f&&f[1],date:d&&d[1],type:t&&t[1],value:v&&v[1]};
+      }
     }
-    if(data.weight!==null) row.weight=data.weight;
-    if(data.fat!==null) row.fat=data.fat;
-    row.source='HealthPlanet→Appleヘルスケア';
-    row.importedAt=new Date().toISOString();
-    if(index<0) state.body.push(row);
+    return normalizeHealthRecord(obj);
+  }
+
+  function parseHealthPayloads(text){
+    if(!text) return [];
+    const raw=String(text).trim();
+    if(!raw) return [];
+    try{
+      const json=JSON.parse(raw);
+      const list=Array.isArray(json) ? json : (Array.isArray(json.measurements) ? json.measurements : null);
+      if(list){
+        const byDate=new Map();
+        list.forEach(item=>{
+          const data=normalizeHealthRecord(item);
+          if(!data) return;
+          const cur=byDate.get(data.date)||{date:data.date,weight:null,fat:null};
+          if(data.weight!==null) cur.weight=data.weight;
+          if(data.fat!==null) cur.fat=data.fat;
+          byDate.set(data.date,cur);
+        });
+        return [...byDate.values()].sort((a,b)=>a.date.localeCompare(b.date));
+      }
+      const single=normalizeHealthRecord(json);
+      if(single) return [single];
+    }catch(e){}
+
+    const lines=raw.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    const byDate=new Map();
+    for(const line of lines){
+      const data=parseHealthLine(line);
+      if(!data) continue;
+      const cur=byDate.get(data.date)||{date:data.date,weight:null,fat:null};
+      if(data.weight!==null) cur.weight=data.weight;
+      if(data.fat!==null) cur.fat=data.fat;
+      byDate.set(data.date,cur);
+    }
+    if(byDate.size) return [...byDate.values()].sort((a,b)=>a.date.localeCompare(b.date));
+
+    const legacy=parseHealthLine(raw);
+    return legacy?[legacy]:[];
+  }
+
+  function mergeHealthMeasurements(items){
+    if(!Array.isArray(items) || !items.length) return false;
+    let created=0,updated=0,weightCount=0,fatCount=0,lastRow=null;
+    for(const data of items){
+      const matches=state.body.map((x,i)=>({x,i})).filter(v=>v.x.date===data.date);
+      let row,index=-1;
+      if(matches.length){
+        index=matches[matches.length-1].i;
+        row=state.body[index];
+        updated++;
+      }else{
+        row={id:Date.now()+created,date:data.date,weight:null,waist:null,fat:null,muscle:null,calories:null,protein:null,fatGram:null,carbs:null,memo:''};
+        created++;
+      }
+      if(data.weight!==null){ row.weight=data.weight; weightCount++; }
+      if(data.fat!==null){ row.fat=data.fat; fatCount++; }
+      row.source='HealthPlanet→Appleヘルスケア';
+      row.importedAt=new Date().toISOString();
+      if(index<0) state.body.push(row);
+      lastRow=row;
+    }
     state.body.sort((a,b)=>a.date.localeCompare(b.date) || ((a.id||0)-(b.id||0)));
     saveState();
 
-    $('#bodyDate').value=row.date;
-    $('#weight').value=row.weight??''; $('#waist').value=row.waist??''; $('#fat').value=row.fat??''; $('#muscle').value=row.muscle??'';
-    $('#calories').value=row.calories??''; $('#protein').value=row.protein??''; $('#fatGram').value=row.fatGram??''; $('#carbs').value=row.carbs??''; $('#memo').value=row.memo||'';
+    if(lastRow){
+      $('#bodyDate').value=lastRow.date;
+      $('#weight').value=lastRow.weight??''; $('#waist').value=lastRow.waist??''; $('#fat').value=lastRow.fat??''; $('#muscle').value=lastRow.muscle??'';
+      $('#calories').value=lastRow.calories??''; $('#protein').value=lastRow.protein??''; $('#fatGram').value=lastRow.fatGram??''; $('#carbs').value=lastRow.carbs??''; $('#memo').value=lastRow.memo||'';
+    }
 
     renderHistory();drawChart();assessBulk();
-    const vals=[data.weight!==null?`体重 ${data.weight}kg`:'',data.fat!==null?`体脂肪率 ${data.fat}%`:''].filter(Boolean).join(' / ');
-    $('#healthImportMessage').textContent=`${data.date} の ${vals} を取り込み、保存しました。`;
-    $('#bodyMessage').textContent='HealthPlanet連携データを保存済みです。腹囲・食事などは必要に応じて追加入力できます。';
+    $('#healthImportMessage').textContent=`${items.length}日分を取り込みました（新規 ${created}日 / 上書き ${updated}日、体重 ${weightCount}件 / 体脂肪率 ${fatCount}件）。`;
+    $('#bodyMessage').textContent='HealthPlanet連携データを保存済みです。同じ日付は体重・体脂肪率のみ更新し、腹囲・食事・メモは保持しています。';
     activateView('body');
+    return true;
   }
 
   function appCallbackUrl(mode){
@@ -416,16 +525,16 @@
     const cancel=appCallbackUrl('cancel');
     const error=appCallbackUrl('error');
     const url=`shortcuts://x-callback-url/run-shortcut?name=${encodeURIComponent(HEALTH_SHORTCUT_NAME)}&x-success=${encodeURIComponent(success)}&x-cancel=${encodeURIComponent(cancel)}&x-error=${encodeURIComponent(error)}`;
-    $('#healthImportMessage').textContent='ショートカットを起動します。初回はヘルスケアへのアクセス許可を求められることがあります。';
+    $('#healthImportMessage').textContent='直近7日分をショートカットから取得します。初回はヘルスケアへのアクセス許可を求められることがあります。';
     location.href=url;
   }
 
   async function importHealthFromClipboard(){
     try{
       const text=await navigator.clipboard.readText();
-      const data=parseHealthPayload(text);
-      if(!data) throw new Error('format');
-      mergeHealthMeasurement(data);
+      const items=parseHealthPayloads(text);
+      if(!items.length) throw new Error('format');
+      mergeHealthMeasurements(items);
     }catch(e){
       $('#healthImportMessage').textContent='コピー済みデータを読み取れませんでした。ショートカットを実行してから、もう一度このボタンを押してください。';
     }
@@ -440,8 +549,8 @@
     const clean=location.pathname + location.hash;
     try{history.replaceState({},'',clean);}catch(e){}
     if(mode==='success'){
-      const data=parseHealthPayload(result);
-      if(data){mergeHealthMeasurement(data);return;}
+      const items=parseHealthPayloads(result);
+      if(items.length){mergeHealthMeasurements(items);return;}
       activateView('body');
       $('#healthImportMessage').textContent='ショートカットは完了しましたが、値を受け取れませんでした。「コピー済みデータを取り込む」を押してください。';
     }else if(mode==='cancel'){
@@ -449,7 +558,29 @@
       $('#healthImportMessage').textContent='取り込みをキャンセルしました。';
     }else{
       activateView('body');
-      $('#healthImportMessage').textContent=errorMessage?`ショートカットを実行できませんでした：${errorMessage}`:'ショートカットを実行できませんでした。初回設定を確認してください。';
+      $('#healthImportMessage').textContent=errorMessage?`ショートカットを実行できませんでした：${errorMessage}`:'ショートカットを実行できませんでした。ショートカット設定を確認してください。';
+    }
+  }
+
+  async function forceAppUpdate(){
+    const msg=$('#updateMessage');
+    if(msg) msg.textContent='最新版を確認しています…';
+    try{
+      if('serviceWorker' in navigator){
+        const regs=await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r=>r.unregister()));
+      }
+      if('caches' in window){
+        const keys=await caches.keys();
+        await Promise.all(keys.filter(k=>k.startsWith('lean-abs-coach')).map(k=>caches.delete(k)));
+      }
+      if(msg) msg.textContent='キャッシュを更新しました。再読み込みします。';
+      const u=new URL(location.href);
+      u.searchParams.set('_appv',APP_VERSION);
+      u.searchParams.set('_refresh',Date.now());
+      setTimeout(()=>location.replace(u.toString()),250);
+    }catch(e){
+      if(msg) msg.textContent='自動更新に失敗しました。Safariでページを再読み込みしてください。';
     }
   }
 
@@ -787,6 +918,8 @@
   });
 
   $('#importHealth').addEventListener('click',runHealthShortcut);
+  $('#importHealthQuick').addEventListener('click',()=>{activateView('body');runHealthShortcut();});
+  $('#openBodyView').addEventListener('click',()=>activateView('body'));
   $('#pasteHealth').addEventListener('click',importHealthFromClipboard);
 
   $('#generateReport').addEventListener('click',()=>{generateReport();$('#reportMessage').textContent='報告文を生成しました。';});
@@ -816,6 +949,7 @@
     $('#defaultsMessage').textContent=state.settings.rememberLast?'前回値の自動入力をONにしました。':'前回値の自動入力をOFFにしました。';
   });
 
+  $('#forceUpdate').addEventListener('click',forceAppUpdate);
   $('#exportJson').addEventListener('click',()=>{download(`lean-abs-backup-${today()}.json`,JSON.stringify(state,null,2),'application/json');$('#settingsMessage').textContent='JSONバックアップを書き出しました。';});
   $('#exportCsv').addEventListener('click',()=>{
     const cols=['date','weight','waist','fat','muscle','calories','protein','fatGram','carbs','memo','source','importedAt'];
@@ -848,7 +982,7 @@
   processHealthCallback();
 
   if('serviceWorker' in navigator && location.protocol.startsWith('http')){
-    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    navigator.serviceWorker.register(`./sw.js?v=${APP_VERSION}`,{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
   }
 })();
 </script>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lean-abs-coach-v4-health';
+const CACHE_NAME = 'lean-abs-coach-v6-ui-changelog';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -9,7 +9,7 @@ const CORE_ASSETS = [
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
-    await Promise.allSettled(CORE_ASSETS.map(asset => cache.add(asset)));
+    await Promise.allSettled(CORE_ASSETS.map(asset => cache.add(new Request(asset,{cache:'reload'}))));
     await self.skipWaiting();
   })());
 });
@@ -30,7 +30,7 @@ self.addEventListener('fetch', event => {
   if (event.request.mode === 'navigate') {
     event.respondWith((async () => {
       try {
-        const fresh = await fetch(event.request);
+        const fresh = await fetch(event.request,{cache:'no-store'});
         const cache = await caches.open(CACHE_NAME);
         cache.put('./index.html', fresh.clone());
         return fresh;
@@ -42,14 +42,15 @@ self.addEventListener('fetch', event => {
   }
 
   event.respondWith((async () => {
-    const cached = await caches.match(event.request);
-    const update = fetch(event.request).then(async response => {
-      if (response && response.ok) {
+    try {
+      const fresh = await fetch(event.request,{cache:'no-cache'});
+      if (fresh && fresh.ok) {
         const cache = await caches.open(CACHE_NAME);
-        cache.put(event.request, response.clone());
+        cache.put(event.request, fresh.clone());
       }
-      return response;
-    }).catch(() => null);
-    return cached || (await update) || new Response('', {status: 504, statusText: 'Offline'});
+      return fresh;
+    } catch (e) {
+      return (await caches.match(event.request)) || new Response('', {status: 504, statusText: 'Offline'});
+    }
   })());
 });
