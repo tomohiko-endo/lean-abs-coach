@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lean-abs-coach-v3';
+const CACHE_NAME = 'lean-abs-coach-v4-health';
 const CORE_ASSETS = [
   './',
   './index.html',
