@@ -3,19 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#ff6f2c" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)" />
-  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#ff6f2c" />
   <meta name="description" content="腹筋の割れた痩せマッチョを目指すための、トレーニング・食事・体組成記録アプリ" />
-  <meta name="format-detection" content="telephone=no" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Lean Abs" />
   <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="icon" href="./favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" />
   <title>Lean Abs Coach</title>
   <style>
     :root{
@@ -87,6 +78,14 @@
     .rule-list{margin:0;padding-left:18px;line-height:1.65;font-size:13px}
     .settings-list{display:grid;gap:10px}
     .split{display:flex;gap:8px;align-items:center;justify-content:space-between}
+    .setting-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 0}
+    .setting-toggle input{width:22px;height:22px;min-height:22px;flex:0 0 auto}
+    .defaults-list{display:grid;gap:10px;margin-top:12px}
+    .default-row{border-top:1px solid var(--line);padding-top:10px}
+    .default-row:first-child{border-top:0;padding-top:0}
+    .default-name{font-weight:800;font-size:13px;margin-bottom:7px}
+    .default-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .default-fields label{font-size:11px;color:var(--muted);display:grid;gap:4px}
     .status{font-size:12px;padding:5px 8px;border-radius:999px;background:#eef2f7;color:#4b5563}
     .status.ok{background:#ecfdf3;color:#166534}
     .empty{text-align:center;color:var(--muted);padding:24px 8px;font-size:13px}
@@ -111,7 +110,7 @@
     <header>
       <div class="brand">
         <h1>Lean Abs Coach</h1>
-        <p>腹筋の割れた痩せマッチョをつくる記録アプリ <span class="mini">v2.0 PWA</span></p>
+        <p>腹筋の割れた痩せマッチョをつくる記録アプリ</p>
       </div>
       <div class="pill">44歳・173cm</div>
     </header>
@@ -205,18 +204,19 @@
         </ul>
       </div>
       <div class="card" style="margin-bottom:12px">
-        <div class="split">
-          <div><strong>ホーム画面にインストール</strong><div id="installStatus" class="mini">環境を確認しています…</div></div>
-          <span id="pwaBadge" class="status">PWA</span>
-        </div>
-        <div id="iosInstallGuide" class="hint" style="margin-top:10px">
-          iPhoneではSafariでこのページを開き、<strong>共有ボタン →「ホーム画面に追加」→「追加」</strong>の順に操作してください。ホーム画面から起動するとアドレスバーなしのアプリ表示になります。
+        <div class="setting-toggle">
+          <div>
+            <strong>前回の重量・回数を自動入力</strong>
+            <div class="mini">ON：最後に実施した各セットの数値を次回に引き継ぎます</div>
+          </div>
+          <input id="rememberLast" type="checkbox" aria-label="前回の重量と回数を自動入力">
         </div>
         <div class="actions">
-          <button id="installApp" class="btn primary" type="button" hidden>この端末にインストール</button>
-          <button id="checkUpdate" class="btn" type="button">最新版を確認</button>
+          <button id="saveWorkoutDefaults" class="btn primary" type="button">入力設定を保存</button>
         </div>
-        <div id="installMessage" class="msg" aria-live="polite"></div>
+        <div id="defaultExerciseList" class="defaults-list"></div>
+        <p class="hint" style="margin-bottom:0">履歴がある場合は前回値が優先されます。前回値の自動入力をOFFにすると、ここで設定した初期値を使います。初期回数を空欄にすると回数は未入力で表示します。</p>
+        <div id="defaultsMessage" class="msg" aria-live="polite"></div>
       </div>
       <div class="card settings-list">
         <div class="split"><div><strong>保存方式</strong><div class="mini">この端末のブラウザに保存</div></div><span class="status ok">Local</span></div>
@@ -287,31 +287,60 @@
     return `${y}-${m}-${day}`;
   };
 
+  function normalizeState(x){
+    const base = x && typeof x==='object' ? x : {};
+    if(!Array.isArray(base.workouts)) base.workouts=[];
+    if(!Array.isArray(base.body)) base.body=[];
+    if(!base.settings || typeof base.settings!=='object') base.settings={};
+    if(typeof base.settings.rememberLast!=='boolean') base.settings.rememberLast=true;
+    if(!base.settings.exerciseDefaults || typeof base.settings.exerciseDefaults!=='object') base.settings.exerciseDefaults={};
+    return base;
+  }
+
   function loadState(){
     try{
       const x=JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if(x && Array.isArray(x.workouts) && Array.isArray(x.body)) return x;
+      if(x && Array.isArray(x.workouts) && Array.isArray(x.body)) return normalizeState(x);
     }catch(e){}
-    return {workouts:[], body:[]};
+    return normalizeState({workouts:[], body:[]});
   }
   function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
-  function latestExerciseLoad(name, fallback){
+  function exerciseDefault(ex){
+    const saved=state.settings.exerciseDefaults[ex.name]||{};
+    const load=Number.isFinite(Number(saved.load)) && saved.load!=='' ? clamp(Number(saved.load),0,999) : ex.start;
+    const reps=saved.reps==='' || saved.reps===null || saved.reps===undefined ? '' : clamp(Number(saved.reps)||0,0,50);
+    return {load,reps};
+  }
+
+  function latestExerciseSet(name,setIndex){
     for(let i=state.workouts.length-1;i>=0;i--){
       const ex=state.workouts[i].exercises.find(e=>e.name===name);
-      if(ex){
-        const valid=ex.sets.find(s=>Number.isFinite(s.load) && s.reps>0);
-        if(valid) return valid.load;
+      const set=ex && Array.isArray(ex.sets) ? ex.sets[setIndex] : null;
+      if(set && Number(set.reps)>0){
+        return {
+          load:Number.isFinite(Number(set.load)) ? clamp(Number(set.load),0,999) : 0,
+          reps:clamp(Number(set.reps)||0,0,50)
+        };
       }
     }
-    return fallback;
+    return null;
+  }
+
+  function initialSetValues(ex,setIndex){
+    const fallback=exerciseDefault(ex);
+    if(state.settings.rememberLast){
+      const last=latestExerciseSet(ex.name,setIndex);
+      if(last) return last;
+    }
+    return {load:ex.unit==='自重'?0:fallback.load,reps:fallback.reps};
   }
 
   function renderWorkout(){
     const form=$('#workoutForm');
     form.innerHTML='';
     plans[activePlan].forEach((ex,ei)=>{
-      const current = latestExerciseLoad(ex.name, ex.start);
+      const first=initialSetValues(ex,0);
       const card=document.createElement('section');
       card.className='card exercise';
       card.innerHTML=`
@@ -320,7 +349,7 @@
             <div class="exercise-name">${ei+1}. ${ex.name}</div>
             <div class="exercise-target">${ex.min}〜${ex.max}回 × ${ex.sets}セット</div>
           </div>
-          <span class="status">${ex.unit==='自重'?'自重':'基準 '+current+' '+ex.unit}</span>
+          <span class="status">${ex.unit==='自重'?'自重':'基準 '+first.load+' '+ex.unit}</span>
         </div>
         <div class="exercise-note">${ex.note}</div>
         <div class="sets" data-ex="${ei}">
@@ -328,12 +357,13 @@
         </div>`;
       const rows=card.querySelector('.sets');
       for(let s=0;s<ex.sets;s++){
+        const initial=initialSetValues(ex,s);
         const row=document.createElement('div');
         row.className='set-row';
         row.innerHTML=`
           <span class="setno">${s+1}</span>
-          <input data-kind="load" data-ex="${ei}" data-set="${s}" type="number" step="${ex.step || 1}" min="0" value="${ex.unit==='自重'?0:current}" ${ex.unit==='自重'?'disabled':''} aria-label="${ex.name} セット${s+1} 重量">
-          <input data-kind="reps" data-ex="${ei}" data-set="${s}" type="number" inputmode="numeric" min="0" max="50" placeholder="${ex.min}" aria-label="${ex.name} セット${s+1} 回数">
+          <input data-kind="load" data-ex="${ei}" data-set="${s}" type="number" step="${ex.step || 1}" min="0" value="${ex.unit==='自重'?0:initial.load}" ${ex.unit==='自重'?'disabled':''} aria-label="${ex.name} セット${s+1} 重量">
+          <input data-kind="reps" data-ex="${ei}" data-set="${s}" type="number" inputmode="numeric" min="0" max="50" value="${initial.reps}" placeholder="${ex.min}" aria-label="${ex.name} セット${s+1} 回数">
           <select data-kind="rir" data-ex="${ei}" data-set="${s}" aria-label="${ex.name} セット${s+1} RIR">
             <option value="">—</option><option>0</option><option>1</option><option>2</option><option>3</option><option>4+</option>
           </select>`;
@@ -342,6 +372,56 @@
       form.appendChild(card);
     });
   }
+
+  function uniqueExercises(){
+    const seen=new Map();
+    Object.values(plans).flat().forEach(ex=>{ if(!seen.has(ex.name)) seen.set(ex.name,ex); });
+    return Array.from(seen.values());
+  }
+
+  function renderWorkoutDefaults(){
+    $('#rememberLast').checked=state.settings.rememberLast;
+    const list=$('#defaultExerciseList');
+    list.innerHTML='';
+    uniqueExercises().forEach((ex,idx)=>{
+      const saved=state.settings.exerciseDefaults[ex.name]||{};
+      const load=saved.load!==undefined && saved.load!==null && saved.load!=='' ? saved.load : ex.start;
+      const reps=saved.reps!==undefined && saved.reps!==null ? saved.reps : '';
+      const row=document.createElement('div');
+      row.className='default-row';
+      row.innerHTML=`
+        <div class="default-name">${safeText(ex.name)} <span class="mini">${safeText(ex.unit)}</span></div>
+        <div class="default-fields">
+          <label>初期重量
+            <input data-default-kind="load" data-default-name="${safeText(ex.name)}" type="number" min="0" max="999" step="${ex.step||1}" value="${ex.unit==='自重'?0:load}" ${ex.unit==='自重'?'disabled':''}>
+          </label>
+          <label>初期回数
+            <input data-default-kind="reps" data-default-name="${safeText(ex.name)}" type="number" inputmode="numeric" min="0" max="50" value="${reps}" placeholder="未入力">
+          </label>
+        </div>`;
+      list.appendChild(row);
+    });
+  }
+
+  function saveWorkoutDefaults(){
+    state.settings.rememberLast=$('#rememberLast').checked;
+    const next={};
+    uniqueExercises().forEach(ex=>{
+      const loadEl=document.querySelector(`[data-default-kind="load"][data-default-name="${CSS.escape(ex.name)}"]`);
+      const repsEl=document.querySelector(`[data-default-kind="reps"][data-default-name="${CSS.escape(ex.name)}"]`);
+      next[ex.name]={
+        load:ex.unit==='自重'?0:clamp(Number(loadEl && loadEl.value)||0,0,999),
+        reps:repsEl && repsEl.value!=='' ? clamp(Number(repsEl.value)||0,0,50) : ''
+      };
+    });
+    state.settings.exerciseDefaults=next;
+    saveState();
+    renderWorkout();
+    $('#defaultsMessage').textContent=state.settings.rememberLast
+      ? '保存しました。次回は前回の各セットの重量・回数を自動入力します。'
+      : '保存しました。次回は設定した初期値を使います。';
+  }
+
 
   function collectWorkout(){
     const date=$('#workoutDate').value || today();
@@ -523,6 +603,7 @@
     $$('.view').forEach(x=>x.classList.toggle('active',x.id===`view-${v}`));
     if(v==='body'){drawChart();assessBulk();}
     if(v==='history')renderHistory();
+    if(v==='settings')renderWorkoutDefaults();
   }));
 
   $('#saveWorkout').addEventListener('click',()=>{
@@ -568,6 +649,14 @@
     const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');
     a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),800);
   }
+  $('#saveWorkoutDefaults').addEventListener('click',saveWorkoutDefaults);
+  $('#rememberLast').addEventListener('change',()=>{
+    state.settings.rememberLast=$('#rememberLast').checked;
+    saveState();
+    renderWorkout();
+    $('#defaultsMessage').textContent=state.settings.rememberLast?'前回値の自動入力をONにしました。':'前回値の自動入力をOFFにしました。';
+  });
+
   $('#exportJson').addEventListener('click',()=>{download(`lean-abs-backup-${today()}.json`,JSON.stringify(state,null,2),'application/json');$('#settingsMessage').textContent='JSONバックアップを書き出しました。';});
   $('#exportCsv').addEventListener('click',()=>{
     const cols=['date','weight','waist','fat','muscle','calories','protein','fatGram','carbs','memo'];
@@ -583,84 +672,24 @@
       try{
         const x=JSON.parse(String(reader.result));
         if(!x||!Array.isArray(x.workouts)||!Array.isArray(x.body))throw new Error();
-        state=x;saveState();renderHistory();renderWorkout();drawChart();assessBulk();$('#settingsMessage').textContent='バックアップを読み込みました。';
+        state=normalizeState(x);saveState();renderHistory();renderWorkout();renderWorkoutDefaults();drawChart();assessBulk();$('#settingsMessage').textContent='バックアップを読み込みました。';
       }catch(err){$('#settingsMessage').textContent='対応したJSONではありません。';}
     };
     reader.readAsText(file);e.target.value='';
   });
   $('#clearData').addEventListener('click',()=>{
     if(confirm('トレーニング・体組成の全記録を削除します。よろしいですか？')){
-      state={workouts:[],body:[]};saveState();renderHistory();renderWorkout();drawChart();assessBulk();$('#settingsMessage').textContent='全データを削除しました。';
+      state=normalizeState({workouts:[],body:[]});saveState();renderHistory();renderWorkout();renderWorkoutDefaults();drawChart();assessBulk();$('#settingsMessage').textContent='全データを削除しました。';
     }
   });
 
   $('#workoutDate').value=today();
   $('#bodyDate').value=today();
-  renderWorkout();renderHistory();assessBulk();
+  renderWorkout();renderWorkoutDefaults();renderHistory();assessBulk();
 
-  // PWA install / iOS standalone / service worker update handling
-  let deferredInstallPrompt = null;
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  const installBtn = $('#installApp');
-  const installStatus = $('#installStatus');
-  const pwaBadge = $('#pwaBadge');
-  const installMsg = $('#installMessage');
-
-  function updateInstallUI(){
-    if(isStandalone){
-      installStatus.textContent='インストール済み・アプリ表示で起動中';
-      pwaBadge.classList.add('ok'); pwaBadge.textContent='Installed';
-      installBtn.hidden=true;
-    }else if(isIOS){
-      installStatus.textContent='Safariの「共有 → ホーム画面に追加」でインストール';
-      pwaBadge.textContent='iPhone';
-    }else{
-      installStatus.textContent='インストール可能な場合は下にボタンが表示されます';
-    }
-  }
-  updateInstallUI();
-
-  window.addEventListener('beforeinstallprompt', e=>{
-    e.preventDefault(); deferredInstallPrompt=e; installBtn.hidden=false;
-    installStatus.textContent='この端末にインストールできます';
-  });
-  installBtn.addEventListener('click', async()=>{
-    if(!deferredInstallPrompt){installMsg.textContent='iPhoneではSafariの共有メニューから「ホーム画面に追加」を選んでください。';return;}
-    deferredInstallPrompt.prompt();
-    const result=await deferredInstallPrompt.userChoice;
-    installMsg.textContent=result.outcome==='accepted'?'インストールを開始しました。':'インストールをキャンセルしました。';
-    deferredInstallPrompt=null; installBtn.hidden=true;
-  });
-  window.addEventListener('appinstalled',()=>{installMsg.textContent='インストールが完了しました。';pwaBadge.classList.add('ok');pwaBadge.textContent='Installed';});
-
-  let swRegistration=null;
   if('serviceWorker' in navigator && location.protocol.startsWith('http')){
-    navigator.serviceWorker.register('./sw.js').then(reg=>{
-      swRegistration=reg;
-      if(reg.waiting){ installMsg.textContent='新しいバージョンがあります。「最新版を確認」を押してください。'; }
-      reg.addEventListener('updatefound',()=>{
-        const worker=reg.installing;
-        if(!worker)return;
-        worker.addEventListener('statechange',()=>{
-          if(worker.state==='installed' && navigator.serviceWorker.controller){
-            installMsg.textContent='新しいバージョンを取得しました。最新版確認で反映できます。';
-          }
-        });
-      });
-    }).catch(()=>{installMsg.textContent='Service Workerを登録できませんでした。HTTPSで公開されているか確認してください。';});
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
   }
-  $('#checkUpdate').addEventListener('click', async()=>{
-    if(!swRegistration){installMsg.textContent='更新機能はHTTPSで公開したPWAで利用できます。';return;}
-    try{
-      await swRegistration.update();
-      if(swRegistration.waiting){swRegistration.waiting.postMessage({type:'SKIP_WAITING'}); installMsg.textContent='最新版へ更新します…';}
-      else installMsg.textContent='現在のバージョンは最新です。';
-    }catch(e){installMsg.textContent='更新確認に失敗しました。通信状態を確認してください。';}
-  });
-  navigator.serviceWorker?.addEventListener('controllerchange',()=>{
-    if(!sessionStorage.getItem('leanAbsReloaded')){sessionStorage.setItem('leanAbsReloaded','1');location.reload();}
-  });
 })();
 </script>
 </body>
