@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ff6f2c" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="description" content="腹筋の割れた痩せマッチョを目指すための、トレーニング・食事・体組成記録アプリ" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Lean Abs" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" />
+  <title>Lean Abs Coach</title>
+  <style>
+    :root{
+      --bg:#f6f7f9; --card:#ffffff; --text:#15171a; --muted:#6e737a;
+      --line:#e5e7eb; --accent:#ff6f2c; --accent-soft:#fff0e8;
+      --good:#15803d; --warn:#b45309; --danger:#b91c1c; --shadow:0 8px 26px rgba(0,0,0,.07);
+    }
+    *{box-sizing:border-box}
+    html{-webkit-text-size-adjust:100%}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Noto Sans JP",sans-serif}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .shell{max-width:900px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 14px calc(92px + env(safe-area-inset-bottom))}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+    .brand h1{font-size:24px;margin:0;letter-spacing:-.02em}
+    .brand p{font-size:13px;color:var(--muted);margin:4px 0 0}
+    .pill{background:var(--accent-soft);color:#9a3c0d;padding:8px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadow)}
+    .grid{display:grid;gap:12px}
+    .kpis{grid-template-columns:repeat(3,1fr);margin-bottom:12px}
+    .kpi .label{font-size:12px;color:var(--muted)}
+    .kpi .value{font-size:20px;font-weight:800;margin-top:5px}
+    .kpi .sub{font-size:11px;color:var(--muted);margin-top:2px}
+    .tabs{position:fixed;z-index:20;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+    .tabs-inner{width:min(900px,100%);display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+    .tab-btn{border:0;background:transparent;color:var(--muted);padding:9px 4px;border-radius:11px;font-size:12px;font-weight:700;min-height:48px}
+    .tab-btn.active{background:var(--accent-soft);color:#9a3c0d}
+    .view{display:none}.view.active{display:block}
+    .section-title{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:18px 2px 10px}
+    .section-title h2{margin:0;font-size:18px}.section-title p{margin:0;color:var(--muted);font-size:12px}
+    .plan-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+    .plan-btn{border:1px solid var(--line);background:var(--card);border-radius:12px;min-height:46px;font-weight:800}
+    .plan-btn.active{border-color:var(--accent);background:var(--accent-soft);color:#9a3c0d}
+    .exercise{margin-bottom:10px}
+    .exercise-head{display:flex;gap:10px;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+    .exercise-name{font-weight:800}
+    .exercise-target{font-size:12px;color:var(--muted);margin-top:2px}
+    .exercise-note{font-size:12px;color:var(--muted);line-height:1.5;margin:7px 0}
+    .sets{display:grid;gap:7px}
+    .set-row{display:grid;grid-template-columns:34px minmax(72px,1fr) minmax(62px,1fr) minmax(62px,.8fr);gap:7px;align-items:center}
+    .set-row.head{font-size:11px;color:var(--muted)}
+    .setno{font-weight:800;text-align:center}
+    input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;color:var(--text);border-radius:10px;padding:10px 9px;min-height:44px;font-size:16px}
+    input:focus,select:focus,textarea:focus{outline:3px solid rgba(255,111,44,.15);border-color:var(--accent)}
+    .btn{border:1px solid var(--line);background:#fff;border-radius:11px;padding:11px 14px;min-height:44px;font-weight:800}
+    .btn.primary{background:var(--accent);border-color:var(--accent);color:white}
+    .btn.soft{background:var(--accent-soft);border-color:#ffd1bb;color:#9a3c0d}
+    .btn.danger{color:var(--danger)}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .hint{font-size:12px;color:var(--muted);line-height:1.5}
+    .msg{font-size:13px;margin-top:9px;color:var(--muted)}
+    .good{color:var(--good)} .warn{color:var(--warn)} .danger{color:var(--danger)}
+    .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+    .wide{grid-column:1/-1}
+    .history-item{border-top:1px solid var(--line);padding:12px 0}
+    .history-item:first-child{border-top:0;padding-top:0}
+    .history-title{font-weight:800}
+    .history-meta{font-size:12px;color:var(--muted);margin-top:3px}
+    .history-detail{font-size:13px;line-height:1.55;margin-top:6px}
+    .rec{margin-top:7px;padding:9px 10px;border-radius:10px;background:#f8fafc;font-size:12px}
+    .chart-wrap{overflow:hidden}
+    canvas{display:block;width:100%;height:210px}
+    .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+    .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+    .dot.weight{background:#111827}.dot.waist{background:#0f766e}.dot.fat{background:#b45309}
+    .report{min-height:260px;white-space:pre-wrap}
+    .mini{font-size:11px;color:var(--muted)}
+    .rule-list{margin:0;padding-left:18px;line-height:1.65;font-size:13px}
+    .settings-list{display:grid;gap:10px}
+    .split{display:flex;gap:8px;align-items:center;justify-content:space-between}
+    .status{font-size:12px;padding:5px 8px;border-radius:999px;background:#eef2f7;color:#4b5563}
+    .status.ok{background:#ecfdf3;color:#166534}
+    .empty{text-align:center;color:var(--muted);padding:24px 8px;font-size:13px}
+    @media (max-width:640px){
+      .kpis{grid-template-columns:1fr}
+      .kpi{display:grid;grid-template-columns:1fr auto;align-items:center}.kpi .sub{grid-column:1/-1}
+      .form-grid{grid-template-columns:1fr}
+      .wide{grid-column:auto}
+      .tabs-inner{gap:2px}
+      .tab-btn{font-size:11px}
+    }
+    @media (prefers-color-scheme:dark){
+      :root{--bg:#101214;--card:#17191c;--text:#f4f4f5;--muted:#a1a1aa;--line:#2b2f34;--accent-soft:#3b2419;--shadow:none}
+      input,select,textarea,.btn,.plan-btn{background:#17191c;color:var(--text)}
+      .rec{background:#1d2024}
+      .tabs{background:rgba(16,18,20,.96)}
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand">
+        <h1>Lean Abs Coach</h1>
+        <p>腹筋の割れた痩せマッチョをつくる記録アプリ <span class="mini">v2.0 PWA</span></p>
+      </div>
+      <div class="pill">44歳・173cm</div>
+    </header>
+
+    <section class="grid kpis">
+      <div class="card kpi"><div class="label">増量カロリー</div><div class="value">2,550 kcal</div><div class="sub">目安 2,500〜2,600 kcal</div></div>
+      <div class="card kpi"><div class="label">P / F / C</div><div class="value">135 / 65 / 356g</div><div class="sub">PとFを固定、残りを炭水化物</div></div>
+      <div class="card kpi"><div class="label">体重増加ペース</div><div class="value">+0.3〜0.6kg/月</div><div class="sub">腹囲の急増を避けるリーンバルク</div></div>
+    </section>
+
+    <section id="view-today" class="view active" aria-labelledby="tab-today">
+      <div class="section-title"><div><h2>今日のトレーニング</h2><p>ジムA → 自宅B → ジムCを基本ローテーション</p></div></div>
+      <div class="plan-selector">
+        <button class="plan-btn active" data-plan="A" type="button">ジムA</button>
+        <button class="plan-btn" data-plan="B" type="button">自宅B</button>
+        <button class="plan-btn" data-plan="C" type="button">ジムC</button>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="field"><label for="workoutDate">実施日</label><input id="workoutDate" type="date"></div>
+        <p class="hint" style="margin:10px 0 0">RIR 1〜2（あと1〜2回できる余力）が基本。初めて行う種目の重量は「テスト重量」です。1セット目でRIR 3以上なら少し上げ、0なら下げてください。</p>
+      </div>
+      <form id="workoutForm"></form>
+      <div class="actions">
+        <button id="saveWorkout" class="btn primary" type="button">トレーニングを保存</button>
+        <button id="resetWorkout" class="btn" type="button">入力をリセット</button>
+      </div>
+      <div id="workoutMessage" class="msg" aria-live="polite"></div>
+    </section>
+
+    <section id="view-body" class="view" aria-labelledby="tab-body">
+      <div class="section-title"><div><h2>体組成・食事</h2><p>朝の体重と腹囲を優先して追跡</p></div></div>
+      <div class="card">
+        <form id="bodyForm" class="form-grid">
+          <div class="field wide"><label for="bodyDate">日付</label><input id="bodyDate" type="date"></div>
+          <div class="field"><label for="weight">体重 kg</label><input id="weight" type="number" inputmode="decimal" step="0.1" min="35" max="150" placeholder="60.5"></div>
+          <div class="field"><label for="waist">腹囲 cm</label><input id="waist" type="number" inputmode="decimal" step="0.1" min="50" max="150" placeholder="任意"></div>
+          <div class="field"><label for="fat">体脂肪率 %</label><input id="fat" type="number" inputmode="decimal" step="0.1" min="3" max="50" placeholder="15.0"></div>
+          <div class="field"><label for="muscle">筋肉量 kg</label><input id="muscle" type="number" inputmode="decimal" step="0.1" min="20" max="100" placeholder="49.0"></div>
+          <div class="field"><label for="calories">摂取 kcal</label><input id="calories" type="number" inputmode="numeric" step="10" min="500" max="6000" placeholder="2550"></div>
+          <div class="field"><label for="protein">P g</label><input id="protein" type="number" inputmode="decimal" step="1" min="0" max="400" placeholder="135"></div>
+          <div class="field"><label for="fatGram">F g</label><input id="fatGram" type="number" inputmode="decimal" step="1" min="0" max="250" placeholder="65"></div>
+          <div class="field"><label for="carbs">C g</label><input id="carbs" type="number" inputmode="decimal" step="1" min="0" max="900" placeholder="356"></div>
+          <div class="field wide"><label for="memo">メモ</label><textarea id="memo" rows="2" placeholder="睡眠、疲労感、外食など"></textarea></div>
+          <button class="btn primary wide" type="submit">今日のデータを保存</button>
+        </form>
+        <div id="bodyMessage" class="msg" aria-live="polite"></div>
+      </div>
+
+      <div class="section-title"><div><h2>推移</h2><p>直近30件</p></div></div>
+      <div class="card chart-wrap">
+        <canvas id="progressChart" width="820" height="250" aria-label="体重、腹囲、体脂肪率の推移"></canvas>
+        <div class="legend">
+          <span><i class="dot weight"></i>体重</span>
+          <span><i class="dot waist"></i>腹囲</span>
+          <span><i class="dot fat"></i>体脂肪率</span>
+        </div>
+      </div>
+
+      <div class="section-title"><div><h2>増量判定</h2></div></div>
+      <div id="bulkAssessment" class="card hint">データが7件ほどたまると、体重増加ペースを判定します。</div>
+    </section>
+
+    <section id="view-history" class="view" aria-labelledby="tab-history">
+      <div class="section-title"><div><h2>履歴</h2><p>保存したトレーニングと体組成</p></div></div>
+      <div class="card"><div id="historyList"></div></div>
+    </section>
+
+    <section id="view-report" class="view" aria-labelledby="tab-report">
+      <div class="section-title"><div><h2>ChatGPTへ報告</h2><p>直近の記録をまとめて貼り付け</p></div></div>
+      <div class="card">
+        <p class="hint" style="margin-top:0">「報告文を生成」で、最新トレーニング・直近の体重推移・食事・次回負荷候補を1つの文章にします。自動でこの会話を読み書きする機能は、ブラウザにAPIキーを保存すると危険なため入れていません。</p>
+        <div class="actions">
+          <button id="generateReport" class="btn primary" type="button">報告文を生成</button>
+          <button id="copyReport" class="btn soft" type="button">コピー</button>
+          <button id="shareReport" class="btn" type="button">共有</button>
+        </div>
+        <textarea id="reportText" class="report" readonly placeholder="ここに報告文が生成されます"></textarea>
+        <div id="reportMessage" class="msg" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="view-settings" class="view" aria-labelledby="tab-settings">
+      <div class="section-title"><div><h2>方針・設定</h2><p>今回の目標に合わせた固定ルール</p></div></div>
+      <div class="card" style="margin-bottom:12px">
+        <ul class="rule-list">
+          <li>今は減量より、筋肉を増やしながら脂肪増加を最小化する。</li>
+          <li>体重増加は月0.3〜0.6kgを目安。体脂肪率単体ではなく腹囲も見る。</li>
+          <li>主要種目は8〜12回中心。全セット上限達成＋RIR 1〜2なら次回負荷UP。</li>
+          <li>腹筋も筋肥大対象。腹筋ローラーとアブドミナルトレーナーで負荷を上げる。</li>
+          <li>肩・広背筋・胸・腹直筋を優先し、Vシェイプを作る。</li>
+        </ul>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="split">
+          <div><strong>ホーム画面にインストール</strong><div id="installStatus" class="mini">環境を確認しています…</div></div>
+          <span id="pwaBadge" class="status">PWA</span>
+        </div>
+        <div id="iosInstallGuide" class="hint" style="margin-top:10px">
+          iPhoneではSafariでこのページを開き、<strong>共有ボタン →「ホーム画面に追加」→「追加」</strong>の順に操作してください。ホーム画面から起動するとアドレスバーなしのアプリ表示になります。
+        </div>
+        <div class="actions">
+          <button id="installApp" class="btn primary" type="button" hidden>この端末にインストール</button>
+          <button id="checkUpdate" class="btn" type="button">最新版を確認</button>
+        </div>
+        <div id="installMessage" class="msg" aria-live="polite"></div>
+      </div>
+      <div class="card settings-list">
+        <div class="split"><div><strong>保存方式</strong><div class="mini">この端末のブラウザに保存</div></div><span class="status ok">Local</span></div>
+        <div class="actions">
+          <button id="exportJson" class="btn" type="button">JSONバックアップ</button>
+          <button id="exportCsv" class="btn" type="button">体組成CSV</button>
+          <label class="btn" for="importJson">JSON読込</label>
+          <input id="importJson" type="file" accept="application/json,.json" hidden>
+          <button id="clearData" class="btn danger" type="button">全データ削除</button>
+        </div>
+        <div id="settingsMessage" class="msg" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabs" aria-label="メインメニュー">
+    <div class="tabs-inner">
+      <button id="tab-today" class="tab-btn active" data-view="today" type="button">今日</button>
+      <button id="tab-body" class="tab-btn" data-view="body" type="button">体組成</button>
+      <button id="tab-history" class="tab-btn" data-view="history" type="button">履歴</button>
+      <button id="tab-report" class="tab-btn" data-view="report" type="button">報告</button>
+      <button id="tab-settings" class="tab-btn" data-view="settings" type="button">設定</button>
+    </div>
+  </nav>
+
+<script>
+(() => {
+  'use strict';
+  const STORAGE_KEY = 'leanAbsCoach.v1';
+
+  const plans = {
+    A: [
+      {name:'レッグプレス', start:110, unit:'kg', sets:3, min:8, max:12, step:10, note:'現100kg×15×3を踏まえ110kgから。深さと膝の軌道を優先。'},
+      {name:'チェストプレス', start:80, unit:'kg', sets:3, min:8, max:12, step:5, note:'現75kg×15×3から80kgへ。胸で押し、肩が前に出ない範囲で。'},
+      {name:'ラットプルダウン', start:111, unit:'kg', sets:3, min:8, max:12, step:5, note:'現111kgで15/11/9。まず3セットとも8〜12回に揃える。'},
+      {name:'ショルダープレス', start:25, unit:'kg', sets:2, min:8, max:12, step:5, note:'未測定のためテスト重量。RIR 3以上なら次セットで上げる。'},
+      {name:'ディップス', start:75, unit:'kg', sets:2, min:8, max:12, step:5, note:'現70kg×15×3から75kgへ。マシン重量が負荷になるタイプを前提。'},
+      {name:'アブドミナルトレーナー', start:25, unit:'kg', sets:3, min:10, max:15, step:5, note:'テスト重量。腰ではなく肋骨と骨盤を近づける意識。'}
+    ],
+    B: [
+      {name:'ダンベルRDL', start:16, unit:'kg/片手', sets:3, min:8, max:12, step:2, note:'初回テスト16kg/片手。股関節を後ろへ引き、ハムと臀部を伸ばす。'},
+      {name:'ワンハンド・ダンベルロー', start:16, unit:'kg/片手', sets:3, min:8, max:12, step:2, note:'左右同回数。反動より、肘を腰へ引く動作を優先。'},
+      {name:'ダンベル・サイドレイズ', start:5, unit:'kg/片手', sets:3, min:12, max:20, step:1, note:'反動を抑える。重すぎる場合はすぐ下げる。'},
+      {name:'ブルガリアンスクワット', start:8, unit:'kg/片手', sets:2, min:8, max:12, step:2, note:'左右それぞれ。フォームが不安定なら自重から開始。'},
+      {name:'腹筋ローラー', start:0, unit:'自重', sets:3, min:6, max:12, step:0, note:'腰を反らさず、お尻を突き出さない。12×3達成後は可動域を延ばす。'},
+      {name:'リバースクランチ', start:0, unit:'自重', sets:2, min:12, max:20, step:0, note:'30回こなすより、骨盤を丸めてゆっくり行う。'}
+    ],
+    C: [
+      {name:'ラットプルダウン', start:111, unit:'kg', sets:3, min:8, max:12, step:5, note:'背中優先日。Aの記録を引き継いで伸ばす。'},
+      {name:'レッグプレス', start:110, unit:'kg', sets:3, min:10, max:15, step:10, note:'Aより少し高回数。15×3なら次回増量。'},
+      {name:'ショルダープレス', start:25, unit:'kg', sets:3, min:8, max:12, step:5, note:'肩の厚みを作る。痛みのない可動域で。'},
+      {name:'チェストプレス', start:80, unit:'kg', sets:2, min:8, max:12, step:5, note:'胸は維持〜成長。Aよりセット数を抑える。'},
+      {name:'バイセップスカール', start:20, unit:'kg', sets:3, min:8, max:12, step:5, note:'現20kgで15/10/8。重量据え置きで3セット安定を狙う。'},
+      {name:'アブドミナルトレーナー', start:25, unit:'kg', sets:3, min:10, max:15, step:5, note:'15×3達成＋RIR1〜2なら次の重量へ。'}
+    ]
+  };
+
+  let state = loadState();
+  let activePlan = 'A';
+
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const clamp = (v,min,max) => Math.max(min,Math.min(max,v));
+  const n = v => v === '' || v === null || v === undefined ? null : Number(v);
+  const today = () => {
+    const d = new Date();
+    const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  };
+
+  function loadState(){
+    try{
+      const x=JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if(x && Array.isArray(x.workouts) && Array.isArray(x.body)) return x;
+    }catch(e){}
+    return {workouts:[], body:[]};
+  }
+  function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+  function latestExerciseLoad(name, fallback){
+    for(let i=state.workouts.length-1;i>=0;i--){
+      const ex=state.workouts[i].exercises.find(e=>e.name===name);
+      if(ex){
+        const valid=ex.sets.find(s=>Number.isFinite(s.load) && s.reps>0);
+        if(valid) return valid.load;
+      }
+    }
+    return fallback;
+  }
+
+  function renderWorkout(){
+    const form=$('#workoutForm');
+    form.innerHTML='';
+    plans[activePlan].forEach((ex,ei)=>{
+      const current = latestExerciseLoad(ex.name, ex.start);
+      const card=document.createElement('section');
+      card.className='card exercise';
+      card.innerHTML=`
+        <div class="exercise-head">
+          <div>
+            <div class="exercise-name">${ei+1}. ${ex.name}</div>
+            <div class="exercise-target">${ex.min}〜${ex.max}回 × ${ex.sets}セット</div>
+          </div>
+          <span class="status">${ex.unit==='自重'?'自重':'基準 '+current+' '+ex.unit}</span>
+        </div>
+        <div class="exercise-note">${ex.note}</div>
+        <div class="sets" data-ex="${ei}">
+          <div class="set-row head"><span>Set</span><span>重量</span><span>回数</span><span>RIR</span></div>
+        </div>`;
+      const rows=card.querySelector('.sets');
+      for(let s=0;s<ex.sets;s++){
+        const row=document.createElement('div');
+        row.className='set-row';
+        row.innerHTML=`
+          <span class="setno">${s+1}</span>
+          <input data-kind="load" data-ex="${ei}" data-set="${s}" type="number" step="${ex.step || 1}" min="0" value="${ex.unit==='自重'?0:current}" ${ex.unit==='自重'?'disabled':''} aria-label="${ex.name} セット${s+1} 重量">
+          <input data-kind="reps" data-ex="${ei}" data-set="${s}" type="number" inputmode="numeric" min="0" max="50" placeholder="${ex.min}" aria-label="${ex.name} セット${s+1} 回数">
+          <select data-kind="rir" data-ex="${ei}" data-set="${s}" aria-label="${ex.name} セット${s+1} RIR">
+            <option value="">—</option><option>0</option><option>1</option><option>2</option><option>3</option><option>4+</option>
+          </select>`;
+        rows.appendChild(row);
+      }
+      form.appendChild(card);
+    });
+  }
+
+  function collectWorkout(){
+    const date=$('#workoutDate').value || today();
+    return {
+      id: Date.now(),
+      date,
+      plan:activePlan,
+      exercises:plans[activePlan].map((ex,ei)=>({
+        name:ex.name, unit:ex.unit, min:ex.min, max:ex.max, step:ex.step,
+        sets:Array.from({length:ex.sets},(_,s)=>{
+          const loadEl=document.querySelector(`[data-kind="load"][data-ex="${ei}"][data-set="${s}"]`);
+          const repsEl=document.querySelector(`[data-kind="reps"][data-ex="${ei}"][data-set="${s}"]`);
+          const rirEl=document.querySelector(`[data-kind="rir"][data-ex="${ei}"][data-set="${s}"]`);
+          return {
+            load:ex.unit==='自重'?0:clamp(Number(loadEl.value)||0,0,999),
+            reps:clamp(Number(repsEl.value)||0,0,50),
+            rir:rirEl.value
+          };
+        })
+      }))
+    };
+  }
+
+  function recommendation(ex){
+    const done=ex.sets.filter(s=>s.reps>0);
+    if(done.length<ex.sets.length) return '未完了：まず全セット記録';
+    const allTop=done.every(s=>s.reps>=ex.max);
+    const anyBelow=done.some(s=>s.reps<ex.min);
+    const hard=done.some(s=>s.rir==='0');
+    const goodRir=done.every(s=>['','1','2','3'].includes(s.rir));
+    if(allTop && goodRir && !hard){
+      if(ex.unit==='自重') return '次回：重量ではなく可動域・停止時間・テンポで難度UP';
+      return `次回：${done[0].load + (ex.step||1)} ${ex.unit}を候補`;
+    }
+    if(anyBelow || hard) return '次回：同重量。2回続けて下限未満なら5〜10%下げる';
+    return '次回：同重量で合計回数を1回以上更新';
+  }
+
+  function bodyVal(id){const v=$(id).value.trim(); return v===''?null:Number(v);}
+  function safeText(s){return String(s||'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+
+  function renderHistory(){
+    const box=$('#historyList');
+    const items=[];
+    state.workouts.forEach(w=>items.push({type:'workout',date:w.date,id:w.id,data:w}));
+    state.body.forEach(b=>items.push({type:'body',date:b.date,id:b.id,data:b}));
+    items.sort((a,b)=> b.date.localeCompare(a.date) || (b.id-a.id));
+    if(!items.length){box.innerHTML='<div class="empty">まだ記録はありません。</div>';return;}
+    box.innerHTML='';
+    items.slice(0,60).forEach(item=>{
+      const div=document.createElement('div');
+      div.className='history-item';
+      if(item.type==='workout'){
+        const w=item.data;
+        const details=w.exercises.filter(e=>e.sets.some(s=>s.reps>0)).map(e=>{
+          const st=e.sets.filter(s=>s.reps>0).map(s=>`${e.unit==='自重'?'自重':s.load+'kg'}×${s.reps}${s.rir!==''?' RIR'+s.rir:''}`).join(' / ');
+          return `<div>${safeText(e.name)}：${safeText(st)}</div>`;
+        }).join('');
+        div.innerHTML=`<div class="history-title">${w.date}　${w.plan==='B'?'自宅B':'ジム'+w.plan}</div><div class="history-detail">${details||'記録あり'}</div>`;
+      }else{
+        const b=item.data;
+        const vals=[
+          b.weight!=null?`体重 ${b.weight}kg`:'',
+          b.waist!=null?`腹囲 ${b.waist}cm`:'',
+          b.fat!=null?`体脂肪 ${b.fat}%`:'',
+          b.muscle!=null?`筋肉量 ${b.muscle}kg`:'',
+          b.calories!=null?`${b.calories}kcal`:''
+        ].filter(Boolean).join(' / ');
+        div.innerHTML=`<div class="history-title">${b.date}　体組成・食事</div><div class="history-meta">${safeText(vals)}</div>${b.memo?`<div class="history-detail">${safeText(b.memo)}</div>`:''}`;
+      }
+      box.appendChild(div);
+    });
+  }
+
+  function avg(arr){return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:null;}
+  function recentBodyWithWeight(){return state.body.filter(x=>x.weight!=null).sort((a,b)=>a.date.localeCompare(b.date));}
+
+  function assessBulk(){
+    const box=$('#bulkAssessment');
+    const rows=recentBodyWithWeight();
+    if(rows.length<4){box.textContent='体重データが4件以上たまると、増量ペースを判定します。';return;}
+    const last=rows.slice(-14);
+    const firstHalf=last.slice(0,Math.max(1,Math.floor(last.length/2)));
+    const secondHalf=last.slice(Math.floor(last.length/2));
+    const a=avg(firstHalf.map(x=>x.weight)), b=avg(secondHalf.map(x=>x.weight));
+    const days=Math.max(1,(new Date(last[last.length-1].date+'T00:00:00')-new Date(last[0].date+'T00:00:00'))/86400000);
+    const weekly=(b-a)/(days/7);
+    const waistRows=state.body.filter(x=>x.waist!=null).sort((a,b)=>a.date.localeCompare(b.date)).slice(-14);
+    const waistDelta=waistRows.length>=2?waistRows[waistRows.length-1].waist-waistRows[0].waist:null;
+    let text='', cls='';
+    if(weekly>0.18 && (waistDelta===null || waistDelta>0.5)){text=`増加ペースはやや速め（概算 ${weekly.toFixed(2)}kg/週）。2週間続くなら摂取を約100kcal下げる候補です。`;cls='warn';}
+    else if(weekly<-0.03){text=`体重が減少傾向（概算 ${weekly.toFixed(2)}kg/週）。筋力も停滞するなら約100kcal増やす候補です。`;cls='warn';}
+    else{text=`現在は概算 ${weekly>=0?'+':''}${weekly.toFixed(2)}kg/週。リーンバルクとして許容範囲です。腹囲と筋力の推移も合わせて判断します。`;cls='good';}
+    box.innerHTML=`<strong class="${cls}">${text}</strong>${waistDelta!==null?`<div style="margin-top:6px">直近の腹囲差：${waistDelta>=0?'+':''}${waistDelta.toFixed(1)}cm</div>`:''}`;
+  }
+
+  function drawChart(){
+    const canvas=$('#progressChart'), ctx=canvas.getContext('2d');
+    const dpr=window.devicePixelRatio||1;
+    const cssW=canvas.clientWidth||820, cssH=210;
+    canvas.width=Math.round(cssW*dpr); canvas.height=Math.round(cssH*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,cssW,cssH);
+    const rows=[...state.body].sort((a,b)=>a.date.localeCompare(b.date)).slice(-30);
+    if(rows.length<2){ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted');ctx.font='13px sans-serif';ctx.fillText('データが2件以上あるとグラフを表示します。',14,30);return;}
+    const pad={l:34,r:12,t:12,b:28}, W=cssW-pad.l-pad.r, H=cssH-pad.t-pad.b;
+    ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--line');ctx.lineWidth=1;
+    for(let i=0;i<4;i++){const y=pad.t+H*i/3;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+W,y);ctx.stroke();}
+    const series=[
+      {key:'weight',color:'#111827'},
+      {key:'waist',color:'#0f766e'},
+      {key:'fat',color:'#b45309'}
+    ];
+    series.forEach(s=>{
+      const vals=rows.map((r,i)=>r[s.key]==null?null:{i,v:r[s.key]}).filter(Boolean);
+      if(vals.length<2)return;
+      const min=Math.min(...vals.map(x=>x.v)), max=Math.max(...vals.map(x=>x.v));
+      const range=Math.max(.5,max-min);
+      ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.beginPath();
+      vals.forEach((p,j)=>{
+        const x=pad.l+W*(p.i/(rows.length-1));
+        const y=pad.t+H*(1-(p.v-(min-range*.15))/(range*1.3));
+        if(j===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+    });
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted');ctx.font='11px sans-serif';
+    const step=Math.max(1,Math.floor(rows.length/4));
+    for(let i=0;i<rows.length;i+=step){const x=pad.l+W*(i/(rows.length-1));ctx.fillText(rows[i].date.slice(5),x-14,cssH-8);}
+  }
+
+  function generateReport(){
+    const lines=['【トレーニング・体組成報告】'];
+    const latestW=state.workouts[state.workouts.length-1];
+    if(latestW){
+      lines.push(`${latestW.date} / ${latestW.plan==='B'?'自宅B':'ジム'+latestW.plan}`);
+      latestW.exercises.forEach(e=>{
+        const done=e.sets.filter(s=>s.reps>0);
+        if(!done.length)return;
+        const sets=done.map(s=>`${e.unit==='自重'?'自重':s.load+(e.unit.includes('kg')?'kg':'')}×${s.reps}${s.rir!==''?'(RIR'+s.rir+')':''}`).join(', ');
+        lines.push(`・${e.name}: ${sets}`);
+        lines.push(`  → ${recommendation(e)}`);
+      });
+    }else lines.push('トレーニング記録なし');
+
+    const body=[...state.body].sort((a,b)=>a.date.localeCompare(b.date));
+    if(body.length){
+      const latest=body[body.length-1];
+      lines.push('', '【最新の体組成・食事】');
+      const vals=[
+        latest.weight!=null?`体重 ${latest.weight}kg`:'',
+        latest.waist!=null?`腹囲 ${latest.waist}cm`:'',
+        latest.fat!=null?`体脂肪率 ${latest.fat}%`:'',
+        latest.muscle!=null?`筋肉量 ${latest.muscle}kg`:'',
+        latest.calories!=null?`摂取 ${latest.calories}kcal`:'',
+        latest.protein!=null?`P ${latest.protein}g`:'',
+        latest.fatGram!=null?`F ${latest.fatGram}g`:'',
+        latest.carbs!=null?`C ${latest.carbs}g`:''
+      ].filter(Boolean);
+      lines.push(`${latest.date}: ${vals.join(' / ')}`);
+      const weights=body.filter(x=>x.weight!=null).slice(-7).map(x=>x.weight);
+      if(weights.length>=2) lines.push(`直近${weights.length}件の平均体重: ${avg(weights).toFixed(2)}kg`);
+      if(latest.memo) lines.push(`メモ: ${latest.memo}`);
+    }
+    lines.push('', '目標：腹筋の割れた痩せマッチョ。現在は筋肉量を増やしつつ体脂肪増加を抑えるリーンバルク。');
+    lines.push('この記録を見て、①次回各種目の重量/回数 ②摂取カロリー ③必要ならメニュー変更 を指示してください。');
+    $('#reportText').value=lines.join('\n');
+  }
+
+  $$('.plan-btn').forEach(btn=>btn.addEventListener('click',()=>{
+    activePlan=btn.dataset.plan;
+    $$('.plan-btn').forEach(b=>b.classList.toggle('active',b===btn));
+    renderWorkout();
+  }));
+
+  $$('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>{
+    const v=btn.dataset.view;
+    $$('.tab-btn').forEach(b=>b.classList.toggle('active',b===btn));
+    $$('.view').forEach(x=>x.classList.toggle('active',x.id===`view-${v}`));
+    if(v==='body'){drawChart();assessBulk();}
+    if(v==='history')renderHistory();
+  }));
+
+  $('#saveWorkout').addEventListener('click',()=>{
+    const w=collectWorkout();
+    if(!w.exercises.some(e=>e.sets.some(s=>s.reps>0))){$('#workoutMessage').textContent='回数を1セット以上入力してください。';return;}
+    state.workouts.push(w); saveState(); renderHistory();
+    $('#workoutMessage').textContent=`${w.date} の${w.plan==='B'?'自宅B':'ジム'+w.plan}を保存しました。`;
+  });
+  $('#resetWorkout').addEventListener('click',()=>{renderWorkout();$('#workoutMessage').textContent='入力をリセットしました。';});
+
+  $('#bodyForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const item={
+      id:Date.now(), date:$('#bodyDate').value||today(),
+      weight:bodyVal('#weight'), waist:bodyVal('#waist'), fat:bodyVal('#fat'), muscle:bodyVal('#muscle'),
+      calories:bodyVal('#calories'), protein:bodyVal('#protein'), fatGram:bodyVal('#fatGram'), carbs:bodyVal('#carbs'),
+      memo:$('#memo').value.trim()
+    };
+    if(Object.entries(item).filter(([k])=>!['id','date','memo'].includes(k)).every(([,v])=>v===null) && !item.memo){
+      $('#bodyMessage').textContent='少なくとも1項目入力してください。';return;
+    }
+    state.body.push(item); state.body.sort((a,b)=>a.date.localeCompare(b.date)); saveState();
+    $('#bodyMessage').textContent=`${item.date} のデータを保存しました。`;
+    drawChart();assessBulk();renderHistory();
+  });
+
+  $('#generateReport').addEventListener('click',()=>{generateReport();$('#reportMessage').textContent='報告文を生成しました。';});
+  $('#copyReport').addEventListener('click',async()=>{
+    const text=$('#reportText').value;
+    if(!text){generateReport();}
+    try{await navigator.clipboard.writeText($('#reportText').value);$('#reportMessage').textContent='コピーしました。このチャットに貼り付けてください。';}
+    catch(e){$('#reportText').select();document.execCommand('copy');$('#reportMessage').textContent='コピーしました。';}
+  });
+  $('#shareReport').addEventListener('click',async()=>{
+    if(!$('#reportText').value)generateReport();
+    if(navigator.share){
+      try{await navigator.share({title:'Lean Abs Coach 報告',text:$('#reportText').value});}
+      catch(e){}
+    }else{$('#reportMessage').textContent='このブラウザでは共有機能が使えません。「コピー」を利用してください。';}
+  });
+
+  function download(name,text,type){
+    const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');
+    a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),800);
+  }
+  $('#exportJson').addEventListener('click',()=>{download(`lean-abs-backup-${today()}.json`,JSON.stringify(state,null,2),'application/json');$('#settingsMessage').textContent='JSONバックアップを書き出しました。';});
+  $('#exportCsv').addEventListener('click',()=>{
+    const cols=['date','weight','waist','fat','muscle','calories','protein','fatGram','carbs','memo'];
+    const esc=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+    const csv='\uFEFF'+[cols.join(','),...state.body.map(r=>cols.map(c=>esc(r[c])).join(','))].join('\n');
+    download(`lean-abs-body-${today()}.csv`,csv,'text/csv;charset=utf-8');
+    $('#settingsMessage').textContent='体組成CSVを書き出しました。';
+  });
+  $('#importJson').addEventListener('change',e=>{
+    const file=e.target.files&&e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=()=>{
+      try{
+        const x=JSON.parse(String(reader.result));
+        if(!x||!Array.isArray(x.workouts)||!Array.isArray(x.body))throw new Error();
+        state=x;saveState();renderHistory();renderWorkout();drawChart();assessBulk();$('#settingsMessage').textContent='バックアップを読み込みました。';
+      }catch(err){$('#settingsMessage').textContent='対応したJSONではありません。';}
+    };
+    reader.readAsText(file);e.target.value='';
+  });
+  $('#clearData').addEventListener('click',()=>{
+    if(confirm('トレーニング・体組成の全記録を削除します。よろしいですか？')){
+      state={workouts:[],body:[]};saveState();renderHistory();renderWorkout();drawChart();assessBulk();$('#settingsMessage').textContent='全データを削除しました。';
+    }
+  });
+
+  $('#workoutDate').value=today();
+  $('#bodyDate').value=today();
+  renderWorkout();renderHistory();assessBulk();
+
+  // PWA install / iOS standalone / service worker update handling
+  let deferredInstallPrompt = null;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const installBtn = $('#installApp');
+  const installStatus = $('#installStatus');
+  const pwaBadge = $('#pwaBadge');
+  const installMsg = $('#installMessage');
+
+  function updateInstallUI(){
+    if(isStandalone){
+      installStatus.textContent='インストール済み・アプリ表示で起動中';
+      pwaBadge.classList.add('ok'); pwaBadge.textContent='Installed';
+      installBtn.hidden=true;
+    }else if(isIOS){
+      installStatus.textContent='Safariの「共有 → ホーム画面に追加」でインストール';
+      pwaBadge.textContent='iPhone';
+    }else{
+      installStatus.textContent='インストール可能な場合は下にボタンが表示されます';
+    }
+  }
+  updateInstallUI();
+
+  window.addEventListener('beforeinstallprompt', e=>{
+    e.preventDefault(); deferredInstallPrompt=e; installBtn.hidden=false;
+    installStatus.textContent='この端末にインストールできます';
+  });
+  installBtn.addEventListener('click', async()=>{
+    if(!deferredInstallPrompt){installMsg.textContent='iPhoneではSafariの共有メニューから「ホーム画面に追加」を選んでください。';return;}
+    deferredInstallPrompt.prompt();
+    const result=await deferredInstallPrompt.userChoice;
+    installMsg.textContent=result.outcome==='accepted'?'インストールを開始しました。':'インストールをキャンセルしました。';
+    deferredInstallPrompt=null; installBtn.hidden=true;
+  });
+  window.addEventListener('appinstalled',()=>{installMsg.textContent='インストールが完了しました。';pwaBadge.classList.add('ok');pwaBadge.textContent='Installed';});
+
+  let swRegistration=null;
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+    navigator.serviceWorker.register('./sw.js').then(reg=>{
+      swRegistration=reg;
+      if(reg.waiting){ installMsg.textContent='新しいバージョンがあります。「最新版を確認」を押してください。'; }
+      reg.addEventListener('updatefound',()=>{
+        const worker=reg.installing;
+        if(!worker)return;
+        worker.addEventListener('statechange',()=>{
+          if(worker.state==='installed' && navigator.serviceWorker.controller){
+            installMsg.textContent='新しいバージョンを取得しました。最新版確認で反映できます。';
+          }
+        });
+      });
+    }).catch(()=>{installMsg.textContent='Service Workerを登録できませんでした。HTTPSで公開されているか確認してください。';});
+  }
+  $('#checkUpdate').addEventListener('click', async()=>{
+    if(!swRegistration){installMsg.textContent='更新機能はHTTPSで公開したPWAで利用できます。';return;}
+    try{
+      await swRegistration.update();
+      if(swRegistration.waiting){swRegistration.waiting.postMessage({type:'SKIP_WAITING'}); installMsg.textContent='最新版へ更新します…';}
+      else installMsg.textContent='現在のバージョンは最新です。';
+    }catch(e){installMsg.textContent='更新確認に失敗しました。通信状態を確認してください。';}
+  });
+  navigator.serviceWorker?.addEventListener('controllerchange',()=>{
+    if(!sessionStorage.getItem('leanAbsReloaded')){sessionStorage.setItem('leanAbsReloaded','1');location.reload();}
+  });
+})();
+</script>
+</body>
+</html>

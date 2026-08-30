@@ -1,0 +1,43 @@
+{
+  "id": "./",
+  "name": "Lean Abs Coach",
+  "short_name": "Lean Abs",
+  "description": "腹筋の割れた痩せマッチョを目指すための、トレーニング・食事・体組成記録アプリ",
+  "lang": "ja-JP",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait-primary",
+  "background_color": "#f6f7f9",
+  "theme_color": "#ff6f2c",
+  "categories": [
+    "fitness",
+    "health",
+    "lifestyle"
+  ],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

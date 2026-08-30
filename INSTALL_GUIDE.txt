@@ -1,0 +1,19 @@
+Lean Abs Coach PWA 公開・インストール手順
+
+【GitHub Pages】
+1. GitHubでPublicリポジトリを作る（例: lean-abs-coach）
+2. ZIPを解凍し、中のファイル全部をリポジトリ直下へアップロード
+3. Settings → Pages
+4. Source: Deploy from a branch
+5. Branch: main / Folder: /(root) → Save
+6. 数分待って表示された https://...github.io/.../ を開く
+
+【iPhone】
+1. URLをSafariで開く
+2. 共有（□↑）
+3. ホーム画面に追加
+4. 追加
+5. ホーム画面のLean Absから起動
+
+※PWA機能はHTTPS公開後に有効になります。
+※データは端末内保存です。設定→JSONバックアップを定期的に実行してください。
