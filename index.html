@@ -89,8 +89,6 @@
     .default-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
     .default-fields label{font-size:11px;color:var(--muted);display:grid;gap:4px}
     .health-import{margin-bottom:12px}
-    .quick-health{margin-bottom:12px;border:1px solid rgba(255,111,44,.35);background:linear-gradient(180deg,var(--card),var(--accent-soft))}
-    .quick-health .btn.primary{width:100%;min-height:46px;font-weight:800}
     .version-card{margin-top:12px}
     .changelog{display:grid;gap:10px;margin-top:10px}
     .change-item{border-top:1px solid var(--line);padding-top:10px}
@@ -129,7 +127,7 @@
         <h1>Lean Abs Coach</h1>
         <p>腹筋の割れた痩せマッチョをつくる記録アプリ</p>
       </div>
-      <div class="header-meta"><div class="pill">44歳・173cm</div><div class="version-badge">v6.1.0</div></div>
+      <div class="header-meta"><div class="pill">44歳・173cm</div><div class="version-badge">v6.3.0</div></div>
     </header>
 
     <section class="grid kpis">
@@ -140,18 +138,6 @@
 
     <section id="view-today" class="view active" aria-labelledby="tab-today">
       <div class="section-title"><div><h2>今日のトレーニング</h2><p>ジムA → 自宅B → ジムCを基本ローテーション</p></div></div>
-      <div class="card quick-health">
-        <div class="split">
-          <div><strong>体組成をまとめて同期</strong><div class="mini">HealthPlanet → Appleヘルスケアから直近7日分</div></div>
-          <span class="status ok">7日分</span>
-        </div>
-        <p class="hint">iPhoneのWebアプリでは、ショートカットのHTTPコールバックがSafariに戻ることがあります。v6.1ではSafariを経由せず、ショートカット→クリップボード→このアプリの2段階で確実に取り込みます。</p>
-        <div class="actions">
-          <button id="importHealthQuick" class="btn primary" type="button">① ヘルスケアデータを取得</button>
-          <button id="pasteHealthQuick" class="btn soft" type="button">② 取得したデータを取り込む</button>
-          <button id="openBodyView" class="btn" type="button">体組成画面を開く</button>
-        </div>
-      </div>
       <div class="plan-selector">
         <button class="plan-btn active" data-plan="A" type="button">ジムA</button>
         <button class="plan-btn" data-plan="B" type="button">自宅B</button>
@@ -164,7 +150,6 @@
       <form id="workoutForm"></form>
       <div class="actions">
         <button id="saveWorkout" class="btn primary" type="button">トレーニングを保存</button>
-        <button id="resetWorkout" class="btn" type="button">入力をリセット</button>
       </div>
       <div id="workoutMessage" class="msg" aria-live="polite"></div>
     </section>
@@ -176,10 +161,10 @@
           <div><strong>HealthPlanetから取り込み</strong><div class="mini">HealthPlanet → Appleヘルスケア → ショートカット</div></div>
           <span class="status ok">iPhone</span>
         </div>
-        <p class="hint">直近7日分をまとめて取得します。①でショートカットを実行するとデータがクリップボードに保存されます。ショートカット完了後、このWebアプリへ戻って②を押してください。同じ日付は体重・体脂肪率だけ上書きし、腹囲・食事・メモは残します。</p>
+        <p class="hint">【最新の取り込みモード】直近7日分の体重・体脂肪率をまとめて取得します。「直近7日分を自動同期」を押すとショートカットを実行し、完了後にLean Abs Coachへ自動復帰して、そのまま自動保存を試みます。同じ日付は体重・体脂肪率だけ上書きし、腹囲・食事・メモは残します。自動復帰しない場合だけ、アプリへ戻って「コピー済みデータを取り込む」を使ってください。</p>
         <div class="actions">
-          <button id="importHealth" class="btn primary" type="button">① ショートカットを実行</button>
-          <button id="pasteHealth" class="btn soft" type="button">② コピー済みデータを取り込む</button>
+          <button id="importHealth" class="btn primary" type="button">直近7日分を自動同期（試験）</button>
+          <button id="pasteHealth" class="btn soft" type="button">コピー済みデータを取り込む（予備）</button>
         </div>
         <div id="healthImportMessage" class="msg" aria-live="polite"></div>
         <details>
@@ -190,8 +175,8 @@
             <li>繰り返し内の最後に <code>type=weight&amp;value=値&amp;date=日付</code> のテキストを置きます。繰り返し終了後、「繰り返しの結果」を <code>WeightLines</code> に設定します。</li>
             <li>体脂肪率も同様に <code>CurrentFatSample</code> を使い、<code>type=fat&amp;value=値&amp;date=日付</code> を作成。終了後の結果を <code>FatLines</code> に設定します。</li>
             <li>「リスト」に <code>WeightLines</code> と <code>FatLines</code> を入れ、そのリストを「改行」で結合します。</li>
-            <li>「結合済みのテキスト」を「クリップボードにコピー」します。v6.1では <code>停止して出力</code> は不要です。</li>
-            <li>最後に「ホーム画面へ移動」を追加すると戻りやすくなります。Lean Abs Coachへ戻ったら「② コピー済みデータを取り込む」を押します。</li>
+            <li>「結合済みのテキスト」を「クリップボードにコピー」します。これは自動復帰に失敗した場合の予備データになります。</li>
+            <li>最後に「停止して出力」を置き、出力内容を【結合済みのテキスト】にします。「ホーム画面へ移動」は使いません。アプリ側の自動同期ボタンから起動すると、x-callbackでLean Abs Coachへの自動復帰・自動取り込みを試みます。</li>
           </ol>
           <div class="health-code">type=weight&amp;value=60.7&amp;date=2026-08-24<br>type=fat&amp;value=13.9&amp;date=2026-08-24<br>…</div>
           <p class="hint" style="margin-bottom:0">同日に複数回測定した場合は、古い順に処理することでその日の最後の測定値を採用します。取り込み済みの日付は体重・体脂肪率だけ上書きし、腹囲・食事・メモは残します。</p>
@@ -276,7 +261,7 @@
       <div class="card version-card">
         <div class="split">
           <div><strong>アプリ情報</strong><div class="mini">現在のバージョンと更新内容</div></div>
-          <span class="status ok">v6.1.0</span>
+          <span class="status ok">v6.3.0</span>
         </div>
         <p class="hint">画面が古いままの場合は「最新版を確認・再読み込み」を押してください。記録データは消さず、PWAのキャッシュだけを更新します。</p>
         <div class="actions"><button id="forceUpdate" class="btn primary" type="button">最新版を確認・再読み込み</button></div>
@@ -284,7 +269,9 @@
         <details open>
           <summary>更新履歴</summary>
           <div class="changelog">
-            <div class="change-item"><div class="change-head"><span class="change-version">v6.1.0</span><span class="change-current">現在</span></div><div class="change-text">iPhoneのWebアプリからショートカット実行後、x-callback-urlがSafariへ戻ってしまう問題を修正。HTTPコールバックを廃止し、クリップボード経由の確実な2段階取り込みへ変更。ショートカット実行待ち状態を保持し、アプリへ戻った際に取り込み操作を案内。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v6.3.0</span><span class="change-current">現在</span></div><div class="change-text">体組成のHealthPlanet連携を「体組成」ページだけに集約。「今日」のトレーニング入力ページから体組成同期UIを削除。体組成ページを最新の自動復帰・自動取り込みモードに統一し、ショートカット手順も「停止して出力」を使う現行方式に修正。誤操作防止のためトレーニング下部の「入力をリセット」を削除。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v6.2.0</span></div><div class="change-text">【試験機能】ショートカット実行後の自動復帰・自動取り込みを追加。x-callback-urlの戻り先にiOSの <code>webapp://</code> スキームを使用し、ショートカットのテキスト出力を直接Lean Abs Coachへ返して保存。失敗時は従来のクリップボード取り込みにフォールバック可能。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v6.1.0</span></div><div class="change-text">iPhoneのWebアプリからショートカット実行後、HTTPSのx-callback-urlがSafariへ戻ってしまう問題への対策として、クリップボード経由の2段階取り込みへ変更。ショートカット実行待ち状態を保持し、アプリへ戻った際に取り込み操作を案内。</div></div>
             <div class="change-item"><div class="change-head"><span class="change-version">v6.0.0</span></div><div class="change-text">「今日」画面にも体組成取り込みボタンを追加。現在バージョン表示、強制更新機能、v1〜v6の更新履歴を追加。7日分ショートカットの作り方を実際に動作確認した WeightLines / FatLines 方式へ修正。</div></div>
             <div class="change-item"><div class="change-head"><span class="change-version">v5.0.0</span></div><div class="change-text">HealthPlanet連携を直近7日分の一括取り込みに対応。同じ日付は体重・体脂肪率のみ上書きし、腹囲・食事・メモを保持。複数行データの解析に対応。</div></div>
             <div class="change-item"><div class="change-head"><span class="change-version">v4.0.0</span></div><div class="change-text">HealthPlanet → Appleヘルスケア → iPhoneショートカット連携を追加。最新の体重・体脂肪率を取り込み、取込元を記録。報告文・CSVにも連携データを反映。</div></div>
@@ -323,7 +310,7 @@
 (() => {
   'use strict';
   const STORAGE_KEY = 'leanAbsCoach.v1';
-  const APP_VERSION = '6.1.0';
+  const APP_VERSION = '6.3.0';
 
   const plans = {
     A: [
@@ -518,18 +505,26 @@
     return true;
   }
 
-  function appCallbackUrl(mode){
+  function webAppCallbackUrl(mode){
     const u=new URL(location.href);
-    u.search='';u.hash='';
-    u.searchParams.set('healthImport',mode);
-    return u.toString();
+    let path=u.pathname || '/';
+    // GitHub Pages等で /index.html を直接開いていても、ホーム画面Webアプリのstart_urlに寄せる。
+    if(path.endsWith('/index.html')) path=path.slice(0,-'index.html'.length);
+    if(!path.endsWith('/')) path += '/';
+    const q=new URLSearchParams();
+    q.set('healthImport',mode);
+    q.set('returnMode','webapp');
+    return `webapp://${u.host}${path}?${q.toString()}`;
   }
 
   function runHealthShortcut(){
     try{ localStorage.setItem(HEALTH_PENDING_KEY, String(Date.now())); }catch(e){}
-    const url=`shortcuts://run-shortcut?name=${encodeURIComponent(HEALTH_SHORTCUT_NAME)}`;
+    const success=webAppCallbackUrl('success');
+    const cancel=webAppCallbackUrl('cancel');
+    const error=webAppCallbackUrl('error');
+    const url=`shortcuts://x-callback-url/run-shortcut?name=${encodeURIComponent(HEALTH_SHORTCUT_NAME)}&x-success=${encodeURIComponent(success)}&x-cancel=${encodeURIComponent(cancel)}&x-error=${encodeURIComponent(error)}`;
     activateView('body');
-    $('#healthImportMessage').textContent='ショートカットを実行します。完了するとデータがクリップボードに入ります。このアプリへ戻って「② コピー済みデータを取り込む」を押してください。';
+    $('#healthImportMessage').textContent='ショートカットを実行します。完了後、Lean Abs Coachへの自動復帰・自動取り込みを試みます。戻らない場合でもデータはクリップボードに残るので、アプリへ戻って「コピー済みデータを取り込む」を押してください。';
     location.href=url;
   }
 
@@ -539,7 +534,7 @@
     if(!pending) return;
     activateView('body');
     const msg=$('#healthImportMessage');
-    if(msg) msg.textContent='ショートカットから戻りました。データがコピー済みなら「② コピー済みデータを取り込む」を押してください。';
+    if(msg) msg.textContent='ショートカットから戻りました。自動取り込み結果が表示されない場合は「コピー済みデータを取り込む」を押してください。';
   }
 
   async function importHealthFromClipboard(){
@@ -565,7 +560,7 @@
       const items=parseHealthPayloads(result);
       if(items.length){mergeHealthMeasurements(items);return;}
       activateView('body');
-      $('#healthImportMessage').textContent='ショートカットは完了しましたが、値を受け取れませんでした。「コピー済みデータを取り込む」を押してください。';
+      $('#healthImportMessage').textContent='自動復帰しましたが、ショートカットの出力を受け取れませんでした。ショートカット末尾の「停止して出力」が結合済みテキストになっているか確認するか、「コピー済みデータを取り込む」を押してください。';
     }else if(mode==='cancel'){
       activateView('body');
       $('#healthImportMessage').textContent='取り込みをキャンセルしました。';
@@ -912,7 +907,6 @@
     state.workouts.push(w); saveState(); renderHistory();
     $('#workoutMessage').textContent=`${w.date} の${w.plan==='B'?'自宅B':'ジム'+w.plan}を保存しました。`;
   });
-  $('#resetWorkout').addEventListener('click',()=>{renderWorkout();$('#workoutMessage').textContent='入力をリセットしました。';});
 
   $('#bodyForm').addEventListener('submit',e=>{
     e.preventDefault();
@@ -931,9 +925,6 @@
   });
 
   $('#importHealth').addEventListener('click',runHealthShortcut);
-  $('#importHealthQuick').addEventListener('click',()=>{activateView('body');runHealthShortcut();});
-  $('#pasteHealthQuick').addEventListener('click',()=>{activateView('body');importHealthFromClipboard();});
-  $('#openBodyView').addEventListener('click',()=>activateView('body'));
   $('#pasteHealth').addEventListener('click',importHealthFromClipboard);
 
   $('#generateReport').addEventListener('click',()=>{generateReport();$('#reportMessage').textContent='報告文を生成しました。';});

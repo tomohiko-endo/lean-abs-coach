@@ -26,7 +26,7 @@
       await Promise.all(keys.filter(k=>k.startsWith('lean-abs-coach')).map(k=>caches.delete(k)));
     }
     el.textContent='更新準備が完了しました。最新版を開きます…';
-    setTimeout(()=>location.replace('./?_appv=6.1.0&_refresh='+Date.now()),400);
+    setTimeout(()=>location.replace('./?_appv=6.3.0&_refresh='+Date.now()),400);
   }catch(e){
     el.textContent='自動更新に失敗しました。Safariでこのページを再読み込みしてください。';
   }
