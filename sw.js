@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lean-abs-coach-v6-ui-changelog';
+const CACHE_NAME = 'lean-abs-coach-v6-1-clipboard-handoff';
 const CORE_ASSETS = [
   './',
   './index.html',

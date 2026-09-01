@@ -129,7 +129,7 @@
         <h1>Lean Abs Coach</h1>
         <p>腹筋の割れた痩せマッチョをつくる記録アプリ</p>
       </div>
-      <div class="header-meta"><div class="pill">44歳・173cm</div><div class="version-badge">v6.0.0</div></div>
+      <div class="header-meta"><div class="pill">44歳・173cm</div><div class="version-badge">v6.1.0</div></div>
     </header>
 
     <section class="grid kpis">
@@ -145,10 +145,11 @@
           <div><strong>体組成をまとめて同期</strong><div class="mini">HealthPlanet → Appleヘルスケアから直近7日分</div></div>
           <span class="status ok">7日分</span>
         </div>
-        <p class="hint">毎日操作しなくても大丈夫です。ここからショートカットを起動し、体重・体脂肪率をまとめて取り込みます。</p>
+        <p class="hint">iPhoneのWebアプリでは、ショートカットのHTTPコールバックがSafariに戻ることがあります。v6.1ではSafariを経由せず、ショートカット→クリップボード→このアプリの2段階で確実に取り込みます。</p>
         <div class="actions">
-          <button id="importHealthQuick" class="btn primary" type="button">体組成を取り込む（直近7日）</button>
-          <button id="openBodyView" class="btn soft" type="button">体組成画面を開く</button>
+          <button id="importHealthQuick" class="btn primary" type="button">① ヘルスケアデータを取得</button>
+          <button id="pasteHealthQuick" class="btn soft" type="button">② 取得したデータを取り込む</button>
+          <button id="openBodyView" class="btn" type="button">体組成画面を開く</button>
         </div>
       </div>
       <div class="plan-selector">
@@ -175,10 +176,10 @@
           <div><strong>HealthPlanetから取り込み</strong><div class="mini">HealthPlanet → Appleヘルスケア → ショートカット</div></div>
           <span class="status ok">iPhone</span>
         </div>
-        <p class="hint">直近7日分の体重・体脂肪率をまとめて取得します。同じ日付のデータがすでにある場合は体重・体脂肪率だけを上書きし、腹囲・食事・メモなどは残します。毎日取り込む必要はありません。</p>
+        <p class="hint">直近7日分をまとめて取得します。①でショートカットを実行するとデータがクリップボードに保存されます。ショートカット完了後、このWebアプリへ戻って②を押してください。同じ日付は体重・体脂肪率だけ上書きし、腹囲・食事・メモは残します。</p>
         <div class="actions">
-          <button id="importHealth" class="btn primary" type="button">直近7日分を取り込む</button>
-          <button id="pasteHealth" class="btn soft" type="button">コピー済みデータを取り込む</button>
+          <button id="importHealth" class="btn primary" type="button">① ショートカットを実行</button>
+          <button id="pasteHealth" class="btn soft" type="button">② コピー済みデータを取り込む</button>
         </div>
         <div id="healthImportMessage" class="msg" aria-live="polite"></div>
         <details>
@@ -189,7 +190,8 @@
             <li>繰り返し内の最後に <code>type=weight&amp;value=値&amp;date=日付</code> のテキストを置きます。繰り返し終了後、「繰り返しの結果」を <code>WeightLines</code> に設定します。</li>
             <li>体脂肪率も同様に <code>CurrentFatSample</code> を使い、<code>type=fat&amp;value=値&amp;date=日付</code> を作成。終了後の結果を <code>FatLines</code> に設定します。</li>
             <li>「リスト」に <code>WeightLines</code> と <code>FatLines</code> を入れ、そのリストを「改行」で結合します。</li>
-            <li>最後は必ず「結合済みのテキスト」を「クリップボードにコピー」→「停止して出力」に指定します。</li>
+            <li>「結合済みのテキスト」を「クリップボードにコピー」します。v6.1では <code>停止して出力</code> は不要です。</li>
+            <li>最後に「ホーム画面へ移動」を追加すると戻りやすくなります。Lean Abs Coachへ戻ったら「② コピー済みデータを取り込む」を押します。</li>
           </ol>
           <div class="health-code">type=weight&amp;value=60.7&amp;date=2026-08-24<br>type=fat&amp;value=13.9&amp;date=2026-08-24<br>…</div>
           <p class="hint" style="margin-bottom:0">同日に複数回測定した場合は、古い順に処理することでその日の最後の測定値を採用します。取り込み済みの日付は体重・体脂肪率だけ上書きし、腹囲・食事・メモは残します。</p>
@@ -274,7 +276,7 @@
       <div class="card version-card">
         <div class="split">
           <div><strong>アプリ情報</strong><div class="mini">現在のバージョンと更新内容</div></div>
-          <span class="status ok">v6.0.0</span>
+          <span class="status ok">v6.1.0</span>
         </div>
         <p class="hint">画面が古いままの場合は「最新版を確認・再読み込み」を押してください。記録データは消さず、PWAのキャッシュだけを更新します。</p>
         <div class="actions"><button id="forceUpdate" class="btn primary" type="button">最新版を確認・再読み込み</button></div>
@@ -282,7 +284,8 @@
         <details open>
           <summary>更新履歴</summary>
           <div class="changelog">
-            <div class="change-item"><div class="change-head"><span class="change-version">v6.0.0</span><span class="change-current">現在</span></div><div class="change-text">「今日」画面にも体組成取り込みボタンを追加。現在バージョン表示、強制更新機能、v1〜v6の更新履歴を追加。7日分ショートカットの作り方を実際に動作確認した WeightLines / FatLines 方式へ修正。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v6.1.0</span><span class="change-current">現在</span></div><div class="change-text">iPhoneのWebアプリからショートカット実行後、x-callback-urlがSafariへ戻ってしまう問題を修正。HTTPコールバックを廃止し、クリップボード経由の確実な2段階取り込みへ変更。ショートカット実行待ち状態を保持し、アプリへ戻った際に取り込み操作を案内。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v6.0.0</span></div><div class="change-text">「今日」画面にも体組成取り込みボタンを追加。現在バージョン表示、強制更新機能、v1〜v6の更新履歴を追加。7日分ショートカットの作り方を実際に動作確認した WeightLines / FatLines 方式へ修正。</div></div>
             <div class="change-item"><div class="change-head"><span class="change-version">v5.0.0</span></div><div class="change-text">HealthPlanet連携を直近7日分の一括取り込みに対応。同じ日付は体重・体脂肪率のみ上書きし、腹囲・食事・メモを保持。複数行データの解析に対応。</div></div>
             <div class="change-item"><div class="change-head"><span class="change-version">v4.0.0</span></div><div class="change-text">HealthPlanet → Appleヘルスケア → iPhoneショートカット連携を追加。最新の体重・体脂肪率を取り込み、取込元を記録。報告文・CSVにも連携データを反映。</div></div>
             <div class="change-item"><div class="change-head"><span class="change-version">v3.0.0</span></div><div class="change-text">トレーニングの重量・回数を前回値から自動入力する機能を追加。種目ごとの初期重量・初期回数を設定画面で変更可能にし、前回値優先のON/OFFを追加。</div></div>
@@ -320,7 +323,7 @@
 (() => {
   'use strict';
   const STORAGE_KEY = 'leanAbsCoach.v1';
-  const APP_VERSION = '6.0.0';
+  const APP_VERSION = '6.1.0';
 
   const plans = {
     A: [
@@ -382,6 +385,7 @@
   function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
   const HEALTH_SHORTCUT_NAME = 'Lean Abs Health Import';
+  const HEALTH_PENDING_KEY = 'leanAbsCoach.healthImportPending';
 
   function activateView(v){
     $$('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
@@ -507,6 +511,7 @@
     }
 
     renderHistory();drawChart();assessBulk();
+    try{ localStorage.removeItem(HEALTH_PENDING_KEY); }catch(e){}
     $('#healthImportMessage').textContent=`${items.length}日分を取り込みました（新規 ${created}日 / 上書き ${updated}日、体重 ${weightCount}件 / 体脂肪率 ${fatCount}件）。`;
     $('#bodyMessage').textContent='HealthPlanet連携データを保存済みです。同じ日付は体重・体脂肪率のみ更新し、腹囲・食事・メモは保持しています。';
     activateView('body');
@@ -521,12 +526,20 @@
   }
 
   function runHealthShortcut(){
-    const success=appCallbackUrl('success');
-    const cancel=appCallbackUrl('cancel');
-    const error=appCallbackUrl('error');
-    const url=`shortcuts://x-callback-url/run-shortcut?name=${encodeURIComponent(HEALTH_SHORTCUT_NAME)}&x-success=${encodeURIComponent(success)}&x-cancel=${encodeURIComponent(cancel)}&x-error=${encodeURIComponent(error)}`;
-    $('#healthImportMessage').textContent='直近7日分をショートカットから取得します。初回はヘルスケアへのアクセス許可を求められることがあります。';
+    try{ localStorage.setItem(HEALTH_PENDING_KEY, String(Date.now())); }catch(e){}
+    const url=`shortcuts://run-shortcut?name=${encodeURIComponent(HEALTH_SHORTCUT_NAME)}`;
+    activateView('body');
+    $('#healthImportMessage').textContent='ショートカットを実行します。完了するとデータがクリップボードに入ります。このアプリへ戻って「② コピー済みデータを取り込む」を押してください。';
     location.href=url;
+  }
+
+  function restorePendingHealthImport(){
+    let pending=false;
+    try{ pending=!!localStorage.getItem(HEALTH_PENDING_KEY); }catch(e){}
+    if(!pending) return;
+    activateView('body');
+    const msg=$('#healthImportMessage');
+    if(msg) msg.textContent='ショートカットから戻りました。データがコピー済みなら「② コピー済みデータを取り込む」を押してください。';
   }
 
   async function importHealthFromClipboard(){
@@ -919,6 +932,7 @@
 
   $('#importHealth').addEventListener('click',runHealthShortcut);
   $('#importHealthQuick').addEventListener('click',()=>{activateView('body');runHealthShortcut();});
+  $('#pasteHealthQuick').addEventListener('click',()=>{activateView('body');importHealthFromClipboard();});
   $('#openBodyView').addEventListener('click',()=>activateView('body'));
   $('#pasteHealth').addEventListener('click',importHealthFromClipboard);
 
@@ -980,6 +994,9 @@
   $('#bodyDate').value=today();
   renderWorkout();renderWorkoutDefaults();renderHistory();assessBulk();
   processHealthCallback();
+  restorePendingHealthImport();
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) restorePendingHealthImport(); });
+  window.addEventListener('pageshow',restorePendingHealthImport);
 
   if('serviceWorker' in navigator && location.protocol.startsWith('http')){
     navigator.serviceWorker.register(`./sw.js?v=${APP_VERSION}`,{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
