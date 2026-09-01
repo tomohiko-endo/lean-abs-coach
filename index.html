@@ -129,7 +129,7 @@
         <h1>Lean Abs Coach</h1>
         <p>腹筋の割れた痩せマッチョをつくる記録アプリ</p>
       </div>
-      <div class="header-meta"><div class="pill">44歳・173cm</div><div class="version-badge">v6.4.0</div></div>
+      <div class="header-meta"><div class="pill">44歳・173cm</div><div class="version-badge">v6.5.0</div></div>
     </header>
 
     <section class="grid kpis">
@@ -163,27 +163,27 @@
           <div><strong>HealthPlanetから取り込み</strong><div class="mini">HealthPlanet → Appleヘルスケア → ショートカット</div></div>
           <span class="status ok">iPhone</span>
         </div>
-        <p class="hint">【v6.4 自動取り込みモード】直近7日分の体重・体脂肪率をまとめて取得します。今回はx-callbackの <code>result</code> 受け渡しに依存せず、アプリが「自動復帰URL」をショートカットへ入力として渡し、ショートカット自身が測定結果をURLに載せてLean Abs Coachを開きます。復帰時に結果を受け取れれば、そのまま自動保存します。同じ日付は体重・体脂肪率だけ上書きし、腹囲・食事・メモは残します。</p>
+        <p class="hint">【v6.5 安定モード】直近7日分の体重・体脂肪率をショートカットで取得し、アプリへ自動で戻ります。戻った直後にクリップボードからの自動取り込みも試みますが、iOSのセキュリティ制限で自動読み取りが許可されない場合は「② 戻ったら取り込む」を1回押してください。同じ日付は体重・体脂肪率だけ上書きし、腹囲・食事・メモは残します。</p>
         <div class="actions">
-          <button id="importHealth" class="btn primary" type="button">直近7日分を自動同期</button>
-          <button id="pasteHealth" class="btn soft" type="button">コピー済みデータを取り込む（予備）</button>
+          <button id="importHealth" class="btn primary" type="button">① 直近7日分を取得</button>
+          <button id="pasteHealth" class="btn soft" type="button">② 戻ったら取り込む</button>
         </div>
         <div id="healthImportMessage" class="msg" aria-live="polite"></div>
         <details>
-          <summary>ショートカット設定（v6.4・自動取り込み版）</summary>
+          <summary>ショートカット設定（v6.5・安定版）</summary>
           <ol class="health-steps">
             <li>体重を「開始日＝過去7日以内」「開始日・古い順」「上限OFF」で検索します。</li>
-            <li>検索結果を繰り返し、最初に「繰り返し項目」を <code>CurrentWeightSample</code> に設定。そこから「値」「開始日」を取得し、開始日を <code>yyyy-MM-dd</code> に書式設定します。</li>
-            <li>繰り返し内の最後に <code>type=weight&amp;value=値&amp;date=日付</code> のテキストを置きます。繰り返し終了後、「繰り返しの結果」を <code>WeightLines</code> に設定します。</li>
-            <li>体脂肪率も同様に <code>CurrentFatSample</code> を使い、<code>type=fat&amp;value=値&amp;date=日付</code> を作成。終了後の結果を <code>FatLines</code> に設定します。</li>
-            <li>「リスト」に <code>WeightLines</code> と <code>FatLines</code> を入れ、そのリストを「改行」で結合します。</li>
-            <li>「結合済みのテキスト」を「クリップボードにコピー」します。これは自動復帰に失敗した場合の予備データになります。</li>
-            <li>次に「URLをエンコード」で【結合済みのテキスト】をエンコードします。</li>
-            <li>「テキスト」を追加し、先頭に【ショートカットの入力】、その直後に【URLエンコード済みのテキスト】を隙間なく並べます。アプリ側の自動同期ボタンから起動すると、「ショートカットの入力」にはLean Abs Coachの自動復帰URLが渡されます。</li>
-            <li>最後に「URLを開く」を追加し、直前のテキストを開きます。【停止して出力】と【ホーム画面へ移動】は削除してください。これで測定結果そのものをURLに載せてLean Abs Coachへ戻すため、復帰後の自動保存が安定します。</li>
+            <li>検索結果を繰り返し、各サンプルから「値」「開始日」を取得し、開始日を <code>yyyy-MM-dd</code> に書式設定。<code>type=weight&amp;value=値&amp;date=日付</code> を作り、終了後の「繰り返しの結果」を <code>WeightLines</code> に設定します。</li>
+            <li>体脂肪率も同様に <code>type=fat&amp;value=値&amp;date=日付</code> を作り、終了後の結果を <code>FatLines</code> に設定します。</li>
+            <li>「リスト」に <code>WeightLines</code> と <code>FatLines</code> を入れ、「改行」で結合します。</li>
+            <li>「結合済みのテキスト」を「クリップボードにコピー」します。</li>
+            <li>その下に「URL」または「テキスト」を追加し、下の【アプリ復帰URL】を貼り付け、そのURLを「URLを開く」で開きます。これでLean Abs Coachへ自動で戻ります。</li>
+            <li>【ショートカットの入力】【URLをエンコード】【停止して出力】は使いません。ショートカット上部の「入力を受け取る」行も不要です。</li>
           </ol>
-          <div class="health-code">type=weight&amp;value=60.7&amp;date=2026-08-24<br>type=fat&amp;value=13.9&amp;date=2026-08-24<br>…</div>
-          <p class="hint" style="margin-bottom:0">同日に複数回測定した場合は、古い順に処理することでその日の最後の測定値を採用します。取り込み済みの日付は体重・体脂肪率だけ上書きし、腹囲・食事・メモは残します。</p>
+          <div class="health-code" id="returnUrlPreview">アプリ復帰URLを準備中…</div>
+          <div class="actions"><button id="copyReturnUrl" class="btn soft" type="button">アプリ復帰URLをコピー</button></div>
+          <p class="hint" style="margin-bottom:0">「アプリ復帰URLをコピー」は初回設定時だけ使います。以後は「① 直近7日分を取得」→アプリへ自動復帰→自動取り込みを試行し、iOSにブロックされた場合だけ「②」を押す運用です。</p>
+        </details>
         </details>
       </div>
       <div class="card">
@@ -265,7 +265,7 @@
       <div class="card version-card">
         <div class="split">
           <div><strong>アプリ情報</strong><div class="mini">現在のバージョンと更新内容</div></div>
-          <span class="status ok">v6.4.0</span>
+          <span class="status ok">v6.5.0</span>
         </div>
         <p class="hint">画面が古いままの場合は「最新版を確認・再読み込み」を押してください。記録データは消さず、PWAのキャッシュだけを更新します。</p>
         <div class="actions"><button id="forceUpdate" class="btn primary" type="button">最新版を確認・再読み込み</button></div>
@@ -273,7 +273,8 @@
         <details open>
           <summary>更新履歴</summary>
           <div class="changelog">
-            <div class="change-item"><div class="change-head"><span class="change-version">v6.4.0</span><span class="change-current">現在</span></div><div class="change-text">ショートカットからアプリへ戻れても自動保存されないケースに対応。x-callbackのresult受け渡しをやめ、アプリから自動復帰URLをショートカット入力へ渡し、ショートカット自身が測定結果をURLに載せてアプリを開く方式へ変更。トレーニング保存ボタンを中央配置し、下部タブ名を「今日」から「筋トレ」へ変更。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v6.5.0</span><span class="change-current">現在</span></div><div class="change-text">iOSのwebapp://ではクエリ付きデータ受け渡しが安定しないため、自動取り込み方式を見直し。ショートカットは結果をクリップボードへ保存して固定のアプリ復帰URLで戻る構成に変更。復帰時はクリップボードの自動読み取りを1回試し、iOSにブロックされた場合だけ1タップで取り込める安定運用に変更。不要になった「ショートカットの入力」設定を廃止。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v6.4.0</span></div><div class="change-text">ショートカットからアプリへ戻れても自動保存されないケースに対応するため、アプリから復帰URLをショートカット入力へ渡し、測定結果をURLに載せる方式を試験。トレーニング保存ボタンを中央配置し、下部タブ名を「今日」から「筋トレ」へ変更。</div></div>
             <div class="change-item"><div class="change-head"><span class="change-version">v6.3.0</span></div><div class="change-text">体組成のHealthPlanet連携を「体組成」ページだけに集約。「今日」のトレーニング入力ページから体組成同期UIを削除。体組成ページを自動復帰・自動取り込みモードに統一。誤操作防止のためトレーニング下部の「入力をリセット」を削除。</div></div>
             <div class="change-item"><div class="change-head"><span class="change-version">v6.2.0</span></div><div class="change-text">【試験機能】ショートカット実行後の自動復帰・自動取り込みを追加。x-callback-urlの戻り先にiOSの <code>webapp://</code> スキームを使用し、ショートカットのテキスト出力を直接Lean Abs Coachへ返して保存。失敗時は従来のクリップボード取り込みにフォールバック可能。</div></div>
             <div class="change-item"><div class="change-head"><span class="change-version">v6.1.0</span></div><div class="change-text">iPhoneのWebアプリからショートカット実行後、HTTPSのx-callback-urlがSafariへ戻ってしまう問題への対策として、クリップボード経由の2段階取り込みへ変更。ショートカット実行待ち状態を保持し、アプリへ戻った際に取り込み操作を案内。</div></div>
@@ -315,7 +316,7 @@
 (() => {
   'use strict';
   const STORAGE_KEY = 'leanAbsCoach.v1';
-  const APP_VERSION = '6.4.0';
+  const APP_VERSION = '6.5.0';
 
   const plans = {
     A: [
@@ -510,23 +511,41 @@
     return true;
   }
 
-  function webAppReturnPrefix(){
+  function webAppReturnUrl(){
     const u=new URL(location.href);
     let path=u.pathname || '/';
     if(path.endsWith('/index.html')) path=path.slice(0,-'index.html'.length);
     if(!path.endsWith('/')) path += '/';
-    // result= の直後へ、ショートカット側でURLエンコードした測定データを連結する。
-    return `webapp://${u.host}${path}?healthImport=direct&result=`;
+    return `webapp://${u.host}${path}`;
   }
 
   function runHealthShortcut(){
     try{ localStorage.setItem(HEALTH_PENDING_KEY, String(Date.now())); }catch(e){}
-    const returnPrefix=webAppReturnPrefix();
-    // v6.4: x-callbackのresult付加に依存せず、自動復帰URLをショートカット入力として渡す。
-    const url=`shortcuts://run-shortcut?name=${encodeURIComponent(HEALTH_SHORTCUT_NAME)}&input=text&text=${encodeURIComponent(returnPrefix)}`;
+    healthAutoImportTried=false;
+    const url=`shortcuts://run-shortcut?name=${encodeURIComponent(HEALTH_SHORTCUT_NAME)}`;
     activateView('body');
-    $('#healthImportMessage').textContent='ショートカットを実行します。完了後、ショートカット自身が測定データ付きURLでLean Abs Coachを開き、自動取り込みします。初回だけ、下の「ショートカット設定（v6.4）」どおり末尾を変更してください。';
+    $('#healthImportMessage').textContent='直近7日分を取得します。ショートカット完了後はLean Abs Coachへ自動で戻ります。戻ったら自動取り込みを1回試します。';
     location.href=url;
+  }
+
+  let healthAutoImportTried=false;
+  async function tryAutoHealthImport(){
+    let pending=false;
+    try{ pending=!!localStorage.getItem(HEALTH_PENDING_KEY); }catch(e){}
+    if(!pending || healthAutoImportTried) return false;
+    healthAutoImportTried=true;
+    try{
+      const text=await navigator.clipboard.readText();
+      const items=parseHealthPayloads(text);
+      if(!items.length) throw new Error('format');
+      mergeHealthMeasurements(items);
+      return true;
+    }catch(e){
+      activateView('body');
+      const msg=$('#healthImportMessage');
+      if(msg) msg.textContent='アプリへ戻りました。iOSが自動クリップボード読み取りを許可しなかったため、「② 戻ったら取り込む」を1回押してください。';
+      return false;
+    }
   }
 
   function restorePendingHealthImport(){
@@ -535,7 +554,8 @@
     if(!pending) return;
     activateView('body');
     const msg=$('#healthImportMessage');
-    if(msg) msg.textContent='ショートカットから戻りました。自動取り込み結果が表示されない場合は「コピー済みデータを取り込む」を押してください。';
+    if(msg) msg.textContent='ショートカットから戻りました。データの自動取り込みを確認しています…';
+    setTimeout(()=>{tryAutoHealthImport();},180);
   }
 
   async function importHealthFromClipboard(){
@@ -932,6 +952,11 @@
 
   $('#importHealth').addEventListener('click',runHealthShortcut);
   $('#pasteHealth').addEventListener('click',importHealthFromClipboard);
+  $('#copyReturnUrl').addEventListener('click',async()=>{
+    const url=webAppReturnUrl();
+    try{await navigator.clipboard.writeText(url);$('#healthImportMessage').textContent='アプリ復帰URLをコピーしました。ショートカット末尾の「URL」または「テキスト」に貼り付けてください。';}
+    catch(e){$('#healthImportMessage').textContent=`コピーできませんでした。次のURLを手動でコピーしてください：${url}`;}
+  });
 
   $('#generateReport').addEventListener('click',()=>{generateReport();$('#reportMessage').textContent='報告文を生成しました。';});
   $('#copyReport').addEventListener('click',async()=>{
@@ -990,6 +1015,8 @@
   $('#workoutDate').value=today();
   $('#bodyDate').value=today();
   renderWorkout();renderWorkoutDefaults();renderHistory();assessBulk();
+  const returnUrlPreview=$('#returnUrlPreview');
+  if(returnUrlPreview) returnUrlPreview.textContent=webAppReturnUrl();
   processHealthCallback();
   restorePendingHealthImport();
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden) restorePendingHealthImport(); });
