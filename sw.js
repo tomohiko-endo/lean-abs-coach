@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lean-abs-coach-v6-5-stable-health-return';
+const CACHE_NAME = 'lean-abs-coach-v6-6-dedupe-rir-fix';
 const CORE_ASSETS = [
   './',
   './index.html',

@@ -129,7 +129,7 @@
         <h1>Lean Abs Coach</h1>
         <p>腹筋の割れた痩せマッチョをつくる記録アプリ</p>
       </div>
-      <div class="header-meta"><div class="pill">44歳・173cm</div><div class="version-badge">v6.5.0</div></div>
+      <div class="header-meta"><div class="pill">44歳・173cm</div><div class="version-badge">v6.6.0</div></div>
     </header>
 
     <section class="grid kpis">
@@ -265,7 +265,7 @@
       <div class="card version-card">
         <div class="split">
           <div><strong>アプリ情報</strong><div class="mini">現在のバージョンと更新内容</div></div>
-          <span class="status ok">v6.5.0</span>
+          <span class="status ok">v6.6.0</span>
         </div>
         <p class="hint">画面が古いままの場合は「最新版を確認・再読み込み」を押してください。記録データは消さず、PWAのキャッシュだけを更新します。</p>
         <div class="actions"><button id="forceUpdate" class="btn primary" type="button">最新版を確認・再読み込み</button></div>
@@ -273,7 +273,8 @@
         <details open>
           <summary>更新履歴</summary>
           <div class="changelog">
-            <div class="change-item"><div class="change-head"><span class="change-version">v6.5.0</span><span class="change-current">現在</span></div><div class="change-text">iOSのwebapp://ではクエリ付きデータ受け渡しが安定しないため、自動取り込み方式を見直し。ショートカットは結果をクリップボードへ保存して固定のアプリ復帰URLで戻る構成に変更。復帰時はクリップボードの自動読み取りを1回試し、iOSにブロックされた場合だけ1タップで取り込める安定運用に変更。不要になった「ショートカットの入力」設定を廃止。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v6.6.0</span><span class="change-current">現在</span></div><div class="change-text">トレーニング判定を改善し、全セットで上限回数を達成した場合はRIR4+を「余裕あり」として次回負荷UP候補に含めるよう修正。体組成は同じ日付の重複記録を1日1件へ自動統合し、履歴・グラフ・増量判定・報告文・直近平均が同一日の重複を数えないよう修正。既存の重複データも起動時に自動整理。</div></div>
+            <div class="change-item"><div class="change-head"><span class="change-version">v6.5.0</span></div><div class="change-text">iOSのwebapp://ではクエリ付きデータ受け渡しが安定しないため、自動取り込み方式を見直し。ショートカットは結果をクリップボードへ保存して固定のアプリ復帰URLで戻る構成に変更。復帰時はクリップボードの自動読み取りを1回試し、iOSにブロックされた場合だけ1タップで取り込める安定運用に変更。不要になった「ショートカットの入力」設定を廃止。</div></div>
             <div class="change-item"><div class="change-head"><span class="change-version">v6.4.0</span></div><div class="change-text">ショートカットからアプリへ戻れても自動保存されないケースに対応するため、アプリから復帰URLをショートカット入力へ渡し、測定結果をURLに載せる方式を試験。トレーニング保存ボタンを中央配置し、下部タブ名を「今日」から「筋トレ」へ変更。</div></div>
             <div class="change-item"><div class="change-head"><span class="change-version">v6.3.0</span></div><div class="change-text">体組成のHealthPlanet連携を「体組成」ページだけに集約。「今日」のトレーニング入力ページから体組成同期UIを削除。体組成ページを自動復帰・自動取り込みモードに統一。誤操作防止のためトレーニング下部の「入力をリセット」を削除。</div></div>
             <div class="change-item"><div class="change-head"><span class="change-version">v6.2.0</span></div><div class="change-text">【試験機能】ショートカット実行後の自動復帰・自動取り込みを追加。x-callback-urlの戻り先にiOSの <code>webapp://</code> スキームを使用し、ショートカットのテキスト出力を直接Lean Abs Coachへ返して保存。失敗時は従来のクリップボード取り込みにフォールバック可能。</div></div>
@@ -316,7 +317,7 @@
 (() => {
   'use strict';
   const STORAGE_KEY = 'leanAbsCoach.v1';
-  const APP_VERSION = '6.5.0';
+  const APP_VERSION = '6.6.0';
 
   const plans = {
     A: [
@@ -347,6 +348,7 @@
 
   let state = loadState();
   let activePlan = 'A';
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
 
   const $ = s => document.querySelector(s);
   const $$ = s => Array.from(document.querySelectorAll(s));
@@ -358,10 +360,41 @@
     return `${y}-${m}-${day}`;
   };
 
+  function mergeSources(...values){
+    const out=[];
+    values.forEach(value=>String(value||'').split(' + ').forEach(v=>{
+      const t=v.trim();
+      if(t && !out.includes(t)) out.push(t);
+    }));
+    return out.join(' + ');
+  }
+
+  function consolidateBodyRows(rows){
+    const byDate=new Map();
+    const fields=['weight','waist','fat','muscle','calories','protein','fatGram','carbs'];
+    [...(Array.isArray(rows)?rows:[])].sort((a,b)=>
+      String(a.date||'').localeCompare(String(b.date||'')) || ((a.id||0)-(b.id||0))
+    ).forEach(src=>{
+      if(!src || !/^\d{4}-\d{2}-\d{2}$/.test(String(src.date||''))) return;
+      let row=byDate.get(src.date);
+      if(!row){
+        row={id:src.id||Date.now(),date:src.date,weight:null,waist:null,fat:null,muscle:null,calories:null,protein:null,fatGram:null,carbs:null,memo:'',source:'',importedAt:null};
+        byDate.set(src.date,row);
+      }
+      fields.forEach(k=>{ if(src[k]!==null && src[k]!==undefined && src[k]!=='' && Number.isFinite(Number(src[k]))) row[k]=Number(src[k]); });
+      if(String(src.memo||'').trim()) row.memo=String(src.memo).trim();
+      row.source=mergeSources(row.source,src.source);
+      if(src.importedAt) row.importedAt=src.importedAt;
+      if((src.id||0) >= (row.id||0)) row.id=src.id||row.id;
+    });
+    return [...byDate.values()].sort((a,b)=>a.date.localeCompare(b.date));
+  }
+
   function normalizeState(x){
     const base = x && typeof x==='object' ? x : {};
     if(!Array.isArray(base.workouts)) base.workouts=[];
     if(!Array.isArray(base.body)) base.body=[];
+    base.body=consolidateBodyRows(base.body);
     if(!base.settings || typeof base.settings!=='object') base.settings={};
     if(typeof base.settings.rememberLast!=='boolean') base.settings.rememberLast=true;
     if(!base.settings.exerciseDefaults || typeof base.settings.exerciseDefaults!=='object') base.settings.exerciseDefaults={};
@@ -475,6 +508,7 @@
 
   function mergeHealthMeasurements(items){
     if(!Array.isArray(items) || !items.length) return false;
+    state.body=consolidateBodyRows(state.body);
     let created=0,updated=0,weightCount=0,fatCount=0,lastRow=null;
     for(const data of items){
       const matches=state.body.map((x,i)=>({x,i})).filter(v=>v.x.date===data.date);
@@ -489,12 +523,12 @@
       }
       if(data.weight!==null){ row.weight=data.weight; weightCount++; }
       if(data.fat!==null){ row.fat=data.fat; fatCount++; }
-      row.source='HealthPlanet→Appleヘルスケア';
+      row.source=mergeSources(row.source,'HealthPlanet→Appleヘルスケア');
       row.importedAt=new Date().toISOString();
       if(index<0) state.body.push(row);
       lastRow=row;
     }
-    state.body.sort((a,b)=>a.date.localeCompare(b.date) || ((a.id||0)-(b.id||0)));
+    state.body=consolidateBodyRows(state.body);
     saveState();
 
     if(lastRow){
@@ -762,11 +796,11 @@
     if(done.length<ex.sets.length) return '未完了：まず全セット記録';
     const allTop=done.every(s=>s.reps>=ex.max);
     const anyBelow=done.some(s=>s.reps<ex.min);
-    const hard=done.some(s=>s.rir==='0');
-    const goodRir=done.every(s=>['','1','2','3'].includes(s.rir));
-    if(allTop && goodRir && !hard){
+    const hard=done.some(s=>String(s.rir)==='0');
+    const increaseCompatibleRir=done.every(s=>['','1','2','3','4','4+'].includes(String(s.rir)));
+    if(allTop && increaseCompatibleRir && !hard){
       if(ex.unit==='自重') return '次回：重量ではなく可動域・停止時間・テンポで難度UP';
-      return `次回：${done[0].load + (ex.step||1)} ${ex.unit}を候補`;
+      return `次回：${done[0].load + (ex.step||1)} ${ex.unit}を候補（上限回数達成・余力あり）`;
     }
     if(anyBelow || hard) return '次回：同重量。2回続けて下限未満なら5〜10%下げる';
     return '次回：同重量で合計回数を1回以上更新';
@@ -810,7 +844,7 @@
   }
 
   function avg(arr){return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:null;}
-  function recentBodyWithWeight(){return state.body.filter(x=>x.weight!=null).sort((a,b)=>a.date.localeCompare(b.date));}
+  function recentBodyWithWeight(){return consolidateBodyRows(state.body).filter(x=>x.weight!=null).sort((a,b)=>a.date.localeCompare(b.date));}
 
   function assessBulk(){
     const box=$('#bulkAssessment');
@@ -822,7 +856,7 @@
     const a=avg(firstHalf.map(x=>x.weight)), b=avg(secondHalf.map(x=>x.weight));
     const days=Math.max(1,(new Date(last[last.length-1].date+'T00:00:00')-new Date(last[0].date+'T00:00:00'))/86400000);
     const weekly=(b-a)/(days/7);
-    const waistRows=state.body.filter(x=>x.waist!=null).sort((a,b)=>a.date.localeCompare(b.date)).slice(-14);
+    const waistRows=consolidateBodyRows(state.body).filter(x=>x.waist!=null).sort((a,b)=>a.date.localeCompare(b.date)).slice(-14);
     const waistDelta=waistRows.length>=2?waistRows[waistRows.length-1].waist-waistRows[0].waist:null;
     let text='', cls='';
     if(weekly>0.18 && (waistDelta===null || waistDelta>0.5)){text=`増加ペースはやや速め（概算 ${weekly.toFixed(2)}kg/週）。2週間続くなら摂取を約100kcal下げる候補です。`;cls='warn';}
@@ -838,7 +872,7 @@
     canvas.width=Math.round(cssW*dpr); canvas.height=Math.round(cssH*dpr);
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.clearRect(0,0,cssW,cssH);
-    const rows=[...state.body].sort((a,b)=>a.date.localeCompare(b.date)).slice(-30);
+    const rows=consolidateBodyRows(state.body).slice(-30);
     if(rows.length<2){ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted');ctx.font='13px sans-serif';ctx.fillText('データが2件以上あるとグラフを表示します。',14,30);return;}
     const pad={l:34,r:12,t:12,b:28}, W=cssW-pad.l-pad.r, H=cssH-pad.t-pad.b;
     ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--line');ctx.lineWidth=1;
@@ -880,7 +914,7 @@
       });
     }else lines.push('トレーニング記録なし');
 
-    const body=[...state.body].sort((a,b)=>a.date.localeCompare(b.date) || ((a.id||0)-(b.id||0)));
+    const body=consolidateBodyRows(state.body);
     if(body.length){
       const latest=body[body.length-1];
       lines.push('', '【最新の体組成・食事】');
@@ -942,11 +976,23 @@
       calories:bodyVal('#calories'), protein:bodyVal('#protein'), fatGram:bodyVal('#fatGram'), carbs:bodyVal('#carbs'),
       memo:$('#memo').value.trim(), source:'手入力'
     };
-    if(Object.entries(item).filter(([k])=>!['id','date','memo'].includes(k)).every(([,v])=>v===null) && !item.memo){
+    if(Object.entries(item).filter(([k])=>!['id','date','memo','source','importedAt'].includes(k)).every(([,v])=>v===null) && !item.memo){
       $('#bodyMessage').textContent='少なくとも1項目入力してください。';return;
     }
-    state.body.push(item); state.body.sort((a,b)=>a.date.localeCompare(b.date)); saveState();
-    $('#bodyMessage').textContent=`${item.date} のデータを保存しました。`;
+    state.body=consolidateBodyRows(state.body);
+    const existingIndex=state.body.findIndex(x=>x.date===item.date);
+    if(existingIndex>=0){
+      const row=state.body[existingIndex];
+      ['weight','waist','fat','muscle','calories','protein','fatGram','carbs'].forEach(k=>{ if(item[k]!==null) row[k]=item[k]; });
+      if(item.memo) row.memo=item.memo;
+      row.source=mergeSources(row.source,'手入力');
+      row.id=Math.max(row.id||0,item.id);
+      state.body[existingIndex]=row;
+    }else{
+      state.body.push(item);
+    }
+    state.body=consolidateBodyRows(state.body); saveState();
+    $('#bodyMessage').textContent=`${item.date} のデータを${existingIndex>=0?'更新':'保存'}しました。`;
     drawChart();assessBulk();renderHistory();
   });
 
